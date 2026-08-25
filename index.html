@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>RAW.RETRO</title>
+<meta name="description" content="RAW.RETRO — retro camcorder photography and video. Old Sony camcorders, shot to tape. Meets, concerts, weddings and everything in between." />
+<meta property="og:title" content="RAW.RETRO" />
+<meta property="og:description" content="RAW.RETRO — retro camcorder photography and video. Old Sony camcorders, shot to tape. Meets, concerts, weddings and everything in between." />
+<meta property="og:image" content="assets/works/rwb.jpg" />
+<meta name="theme-color" content="#000000" />
+<link rel="icon" href="assets/logo/mark-512.png" />
+<link rel="apple-touch-icon" href="assets/logo/mark-512.png" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="is-booting">
+
+<div class="backdrop" aria-hidden="true"></div>
+
+<!-- page-wide CRT grain + scanlines; purely decorative -->
+<div class="grain" aria-hidden="true"></div>
+<div class="scan" aria-hidden="true"></div>
+
+<!-- ============ BOOT ============ -->
+<div id="boot" class="boot" role="status" aria-label="Loading">
+  <div class="boot__bars" aria-hidden="true">
+    <i style="--c:#c0c0c0"></i><i style="--c:#c0c000"></i><i style="--c:#00c0c0"></i>
+    <i style="--c:#00c000"></i><i style="--c:#c000c0"></i><i style="--c:#c00000"></i>
+    <i style="--c:#0000c0"></i>
+  </div>
+  <img src="assets/logo/wordmark-white.png" alt="" class="boot__img" />
+  <div class="boot__bar"><span id="bootFill"></span></div>
+  <div class="boot__meta">
+    <span class="boot__lbl">LOADING TAPE</span>
+    <span class="boot__pct" id="bootPct">000</span>
+  </div>
+</div>
+
+<!-- ============ FIXED CONTROLS ============ -->
+<div class="ctl">
+  <button class="ctl__b" id="invertToggle" aria-pressed="false">invert</button>
+  <button class="ctl__b" id="soundToggle" aria-pressed="false">sound on/off</button>
+</div>
+
+<!-- ============ OSD — the camcorder overlay ============ -->
+<div class="osd" aria-hidden="true">
+  <div class="osd__tl"><i class="osd__rec"></i><span>REC</span></div>
+  <div class="osd__tr" id="osdCode">0:00:00</div>
+  <div class="osd__bl">SP</div>
+  <div class="osd__br">RAW.RETRO</div>
+</div>
+
+<main id="top">
+
+<!-- ============ 01 · FRONT ============ -->
+<section class="sec hero" id="hero">
+  <div class="stage" data-rise>
+    <img src="assets/el/star-b.png" alt="" class="el el--star-b" aria-hidden="true" />
+    <img src="assets/el/star-a.png" alt="" class="el el--star-a" aria-hidden="true" />
+    <img src="assets/el/dice.png"   alt="" class="el el--dice"   aria-hidden="true" />
+    <img src="assets/logo/wordmark-white.png" alt="RAW.RETRO" class="lay lay--mark" />
+    <p class="lay lay--tag">CAMCORDER PHOTOGRAPHY &amp; VIDEO · SHOT ON TAPE</p>
+  </div>
+  <a class="cue" href="#feed" data-nav aria-label="Scroll to the work"><i></i></a>
+</section>
+
+<!-- ============ 02 · THE MACHINE ============ -->
+<section class="sec machine" id="feed">
+  <div class="machine__stage">
+    <canvas id="pspCanvas"></canvas>
+    <div class="machine__loading" id="pspLoading"><i class="spin" aria-hidden="true"></i></div>
+  </div>
+
+  <div class="rail" id="rail" aria-live="polite">
+    <b id="railIdx">01</b><i id="railTot">/10</i>
+    <span class="rail__title" id="railTitle"></span>
+    <a class="rail__open" id="railOpen" href="https://www.instagram.com/raw._retro/"
+       target="_blank" rel="noopener" aria-label="Open RAW.RETRO on Instagram">&#8599;</a>
+  </div>
+
+  <div class="keys" aria-hidden="true"><kbd>&larr;</kbd><kbd>&rarr;</kbd><kbd>&#10005;</kbd></div>
+</section>
+
+<!-- ============ 03 · ABOUT ============ -->
+<section class="sec about" id="about">
+  <div class="stage">
+    <img src="assets/el/dv-a.png"     alt="" class="el el--dv-a" aria-hidden="true" />
+    <img src="assets/el/dv-b.png"     alt="" class="el el--dv-b" aria-hidden="true" />
+    <img src="assets/el/memstick.png" alt="" class="el el--ms"   aria-hidden="true" />
+    <h2 class="lay lay--abouth">ABOUT</h2>
+    <div class="lay lay--bio">
+      <p>RAW.RETRO is photography and video shot the long way round — on old Sony camcorders and Cybershots, straight to tape and card, 640&times;480 and proud of it.</p>
+      <p>Car meets, night runs, garages, gyms, whatever the night turns into. No cleanup, no reshoots, no gloss. The grain, the bloom on a headlight and the smear when the camera pans are the point — that is what it actually looked like, and a sharper sensor would only have lied about it.</p>
+      <p>Now taking bookings: concerts, weddings, events — anything you would rather have on tape than on a phone.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 · CONTACT ============ -->
+<section class="sec contact" id="contact">
+  <div class="stage">
+    <img src="assets/el/vx2000.png" alt="" class="el el--vx" aria-hidden="true" />
+    <h2 class="lay lay--contact">GET IN<br />TOUCH</h2>
+    <div class="lay lay--links">
+      <a href="https://www.instagram.com/raw._retro/" target="_blank" rel="noopener">INSTAGRAM<i>@raw._retro</i></a>
+      <a href="mailto:Raw.R3tro@gmail.com">EMAIL<i>Raw.R3tro@gmail.com</i></a>
+    </div>
+    <p class="lay lay--colophon">&copy; <span id="yr"></span> RAW.RETRO — ALL FOOTAGE SHOT ON TAPE</p>
+  </div>
+</section>
+
+</main>
+
+<!-- preload=auto, not metadata: the track is set rolling MUTED from the first
+     frame so it is fully buffered by the time a gesture arrives, and the
+     gesture then only has to unmute — which cannot fail on a cold network
+     the way a first play() can. See the AUDIO block in js/main.js. -->
+<audio id="bgAudio" src="assets/audio/theme.m4a" loop preload="auto" playsinline></audio>
+
+<script type="importmap">
+{ "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"
+} }
+</script>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script type="module" src="js/psp.js"></script>
+</body>
+</html>
