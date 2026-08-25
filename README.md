@@ -241,6 +241,12 @@ worth clearing before any paid or promoted use of the site.
 - Every channel's ↗ points at the profile, not at an individual post. If you
   have per-post permalinks, put them in `link` in `js/data.js`.
 
+## Hosting
+
+See **[HOSTING.md](HOSTING.md)**. It is static files with no build step, so
+anything serves it; Cloudflare Pages is the pick. The folder is already a git
+repo with a first commit and nothing pushed.
+
 ## Framer
 
 See **[FRAMER.md](FRAMER.md)**. Short version: host it and embed it full-bleed —

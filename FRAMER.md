@@ -39,23 +39,13 @@ below was verified working in an embed — not assumed.
 
 ## Step 1 — host it
 
-Any static host. The whole site is `index.html` + `css/` + `js/` + `assets/`,
-no build step.
+See **[HOSTING.md](HOSTING.md)**. Cloudflare Pages is the pick for this site —
+free, fast, and it copes with the 12MB model. Drag the `site` folder in and you
+have a URL.
 
-**GitHub Pages** (what the reference build uses):
-
-```bash
-cd "/Users/akmed/Documents/RAW. RETRO/site"
-git init && git add -A && git commit -m "RAW.RETRO site"
-gh repo create rawretro-site --public --source=. --push
-gh api -X POST repos/:owner/rawretro-site/pages -f "source[branch]=main" -f "source[path]=/"
-```
-
-Cloudflare Pages or Netlify work the same way and are faster for the 12MB model.
-
-> **Note on weight:** first load is ~18MB — 12MB PSP model, 3.8MB audio, ~2MB
-> cut-outs. Fine on desktop, slow on cellular. If that matters, the model is the
-> thing to compress (Draco/meshopt via `gltf-transform`), not the images.
+> **Note on weight:** first load is ~22MB. Fine on desktop, slow on cellular. If
+> that matters, the model is the thing to compress (Draco/meshopt via
+> `gltf-transform`), not the images.
 
 ## Step 2 — embed it in Framer
 
