@@ -219,17 +219,47 @@ function init() {
     return m;
   }
 
+  /* Light recipes, one per polarity. The dark one is set dressing around a
+     screen that supplies most of the light; the light one has to make a WHITE
+     object read as white plastic against white paper, which is a different
+     problem and needs different lights — not the same lights turned down. */
+  const HEMI_SKY_DARK  = new THREE.Color(0x2a3a4d);
+  const HEMI_GND_DARK  = new THREE.Color(0x05070a);
+  const HEMI_SKY_LIGHT = new THREE.Color(0xf4f6fa);
+  const HEMI_GND_LIGHT = new THREE.Color(0x98a2ae);
+
   let shellInverted = false;
   RR.setShellInvert = function (on) {
     shellInverted = !!on;
     shellMats.forEach((m) => { if (m.userData.uInv) m.userData.uInv.value = on ? 1 : 0; });
-    /* Inverting a lit black shell makes it read as glowing rather than as a
-       white machine, so in inverted mode the directional lighting is simply
-       switched off and the hemisphere carries it. The screen keeps its own
-       emissive material either way. */
-    keyLight.visible = rimIce.visible = rimHot.visible = !on;
-    hemi.intensity = on ? 3.1 : 0.55;
-    bloom.strength = on ? 0.0 : 0.42;
+
+    /* This used to switch every directional off and crank the SAME hemisphere
+       to 3.1. Two things went wrong with that:
+
+         · that hemisphere is strongly blue (0x2a3a4d). Dim, behind a bright
+           screen, it reads as cool ambient. Made the only light source, it
+           tints everything — the inverted shell came out flat navy on white
+           paper rather than white.
+         · with no directional at all there is no specular and no falloff, so
+           the casing lost every edge and seam it had and went to a single flat
+           tone.
+
+       So invert gets a NEUTRAL hemisphere and keeps a soft white key for form.
+       Only the two rim lights go, because rimming a pale object against pale
+       paper does nothing except muddy its outline. */
+    hemi.color.copy(on ? HEMI_SKY_LIGHT : HEMI_SKY_DARK);
+    hemi.groundColor.copy(on ? HEMI_GND_LIGHT : HEMI_GND_DARK);
+    hemi.intensity = on ? 1.7 : 0.55;
+
+    keyLight.visible = true;
+    keyLight.color.set(on ? 0xffffff : 0xbcd4e8);
+    keyLight.intensity = on ? 1.0 : 0.85;
+
+    rimIce.visible = rimHot.visible = !on;
+
+    /* not zero: the screen is still emissive and should still bloom, just far
+       less, because bloom over white paper smears rather than glows */
+    bloom.strength = on ? 0.14 : 0.42;
   };
   if (document.body.classList.contains('is-invert')) {
     /* the shell mats do not exist yet; setup() re-applies once they do */

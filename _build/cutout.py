@@ -2,7 +2,8 @@
 """
 cutout.py — matte a product shot onto transparency for use as a site cut-out.
 
-    python3 _build/cutout.py SOURCE OUT.png [--width 1100] [--flood 200] [--clear 250]
+    python3 _build/cutout.py SOURCE OUT.png [--width 1100] [--flood 200]
+                             [--clear 250] [--mono] [--contrast 100]
 
 Why this exists
 ---------------
@@ -25,6 +26,21 @@ Flood-filling from the BORDER (rather than thresholding globally) is what keeps
 bright areas *inside* the object — a white label, a specular highlight on a lens
 ring — fully opaque. They are not connected to the edge, so the fill never
 reaches them.
+
+--mono
+------
+Converts to greyscale on Rec.709 luma before matting. The site is strictly
+black and white — the only colour anywhere is the SMPTE bars on the boot
+screen — so a colour source (the Sony feature stickers, for instance) has to be
+desaturated or it becomes the loudest thing on the page.
+
+Luma, not a channel average: green carries most of the perceived brightness, so
+averaging flattens a saturated red and a saturated green to the same grey and
+throws away the contrast that made the artwork legible.
+
+`--contrast N` (percent, default 100 = unchanged) then pushes tones away from
+mid-grey around a 128 pivot. Desaturating a bright sticker tends to land
+everything in a narrow mid band; 130-160 usually restores the snap.
 
 No Pillow, no numpy: this machine has neither, so PNG is decoded and re-encoded
 directly on top of zlib.
@@ -106,7 +122,18 @@ def write_png(path, w, h, bpp, px):
 
 
 # ---------------------------------------------------------------- matte
-def cutout(src, dst, width=1100, flood=200, clear=250):
+def to_mono(px, w, h, contrast=100):
+    """Rec.709 luma, then an optional contrast stretch about mid-grey."""
+    k = max(0.0, contrast / 100.0)
+    lut = [max(0, min(255, int(round((v - 128) * k + 128)))) for v in range(256)]
+    for p in range(w * h):
+        i = p * 4
+        y = lut[min(255, int(0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2]))]
+        px[i] = px[i + 1] = px[i + 2] = y
+    return px
+
+
+def cutout(src, dst, width=1100, flood=200, clear=250, mono=0, contrast=100):
     """Downscale with sips, then flood the background out to transparency."""
     with tempfile.TemporaryDirectory() as tmp:
         staged = Path(tmp) / 'in.png'
@@ -121,6 +148,12 @@ def cutout(src, dst, width=1100, flood=200, clear=250):
             rgba[p * 4:p * 4 + 3] = px[p * 3:p * 3 + 3]
             rgba[p * 4 + 3] = 255
         px, bpp = rgba, 4
+
+    # Desaturate BEFORE matting, so the flood threshold is measured against the
+    # tones that will actually ship. A saturated background can sit above the
+    # threshold in one channel and below it in another.
+    if mono:
+        px = to_mono(px, w, h, contrast)
 
     def bright(p):
         i = p * 4
@@ -162,7 +195,8 @@ def cutout(src, dst, width=1100, flood=200, clear=250):
     write_png(dst, w, h, 4, px)
     pct = cut * 100 // (w * h)
     print(f'{Path(dst).name}: {w}x{h}, background cut {pct}% '
-          f'(flood>={flood}, clear>={clear})')
+          f'(flood>={flood}, clear>={clear}'
+          + (f', mono contrast={contrast}' if mono else '') + ')')
     if pct < 20:
         print('  ! very little was cut — is the background actually light?')
     if pct > 92:
@@ -170,14 +204,24 @@ def cutout(src, dst, width=1100, flood=200, clear=250):
 
 
 if __name__ == '__main__':
-    args = [a for a in sys.argv[1:] if not a.startswith('--')]
+    argv = sys.argv[1:]
     opts = {}
-    for a in sys.argv[1:]:
+    if '--mono' in argv:
+        opts['mono'] = 1
+        argv = [a for a in argv if a != '--mono']
+    for a in list(argv):
         if a.startswith('--') and '=' in a:
-            k, v = a[2:].split('=', 1); opts[k] = int(v)
-    for i, a in enumerate(sys.argv):
-        if a in ('--width', '--flood', '--clear'):
-            opts[a[2:]] = int(sys.argv[i + 1])
+            k, v = a[2:].split('=', 1)
+            opts[k] = int(v)
+            argv.remove(a)
+    for i, a in enumerate(list(argv)):
+        if a in ('--width', '--flood', '--clear', '--contrast'):
+            opts[a[2:]] = int(argv[i + 1])
+    skip = set()
+    for i, a in enumerate(argv):
+        if a in ('--width', '--flood', '--clear', '--contrast'):
+            skip.add(i); skip.add(i + 1)
+    args = [a for i, a in enumerate(argv) if i not in skip and not a.startswith('--')]
     if len(args) < 2:
         raise SystemExit(__doc__)
     cutout(args[0], args[1], **opts)

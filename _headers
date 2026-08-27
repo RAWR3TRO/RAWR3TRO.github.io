@@ -1,8 +1,20 @@
 # Cache policy for Cloudflare Pages / Netlify.
 #
-# Nothing here is content-hashed, so "immutable" is only safe on files that
-# genuinely never change. The model and the fonts qualify; the clips and posters
-# do not, because swapping a channel reuses the same filename.
+# "immutable" is only safe where a changed file gets a changed URL.
+#
+#   css/ and js/  ARE safe: index.html references them with a ?v= content hash
+#                 (see _build/stamp.py), so editing one changes the URL and the
+#                 old entry is simply never requested again.
+#   models/fonts  ARE safe: they do not change without being renamed.
+#   everything else in assets/ is NOT: swapping a channel or a prop reuses the
+#                 same filename, so caching it forever would pin the old one.
+
+# content-hashed by ?v= — a change is a new URL
+/css/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/js/*
+  Cache-Control: public, max-age=31536000, immutable
 
 /assets/models/*
   Cache-Control: public, max-age=31536000, immutable

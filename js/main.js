@@ -57,6 +57,7 @@
         if (boot) boot.classList.add('is-done');
         document.body.classList.remove('is-booting');
         document.body.classList.add('is-lit');
+        if (RR.startAudio) RR.startAudio();
       }, reduce ? 60 : 420);
     }
     RR.onReady(release);
@@ -67,21 +68,44 @@
   setTimeout(crawl, reduce ? 0 : 200);
 
   /* ---------------------------------------------------------- */
-  /* OSD TIMECODE                                                */
-  /* Counts up from the moment the page is lit, like a camcorder */
-  /* that started rolling when you arrived.                      */
+  /* OSD CLOCK                                                   */
+  /*                                                              */
+  /* The wall clock, 12-hour, exactly as a camcorder burns it in — */
+  /* the timestamps in the footage on the PSP read the same way    */
+  /* ("5:19:16 PM"), so the page and the tapes agree.              */
+  /*                                                              */
+  /* The hour is NOT zero-padded and the minutes and seconds are,  */
+  /* which is what every consumer camcorder OSD does. Hour 0 shows  */
+  /* as 12, not 0.                                                  */
   /* ---------------------------------------------------------- */
-  var codeEl = document.getElementById('osdCode');
-  if (codeEl) {
-    var t0 = Date.now();
-    setInterval(function () {
-      var s = Math.floor((Date.now() - t0) / 1000);
-      codeEl.textContent =
-        Math.floor(s / 3600) + ':' +
-        String(Math.floor(s / 60) % 60).padStart(2, '0') + ':' +
-        String(s % 60).padStart(2, '0');
-    }, 1000);
+  var clockEl = document.getElementById('osdClock');
+  var merEl   = document.getElementById('osdMeridiem');
+
+  function paintClock() {
+    var d = new Date();
+    var h = d.getHours();
+    var mer = h < 12 ? 'AM' : 'PM';
+    h = h % 12;
+    if (h === 0) h = 12;                       // midnight and noon are 12, not 0
+    if (clockEl) {
+      clockEl.textContent = h + ':' +
+        String(d.getMinutes()).padStart(2, '0') + ':' +
+        String(d.getSeconds()).padStart(2, '0');
+    }
+    if (merEl) merEl.textContent = mer;
   }
+
+  /* Scheduled to the next real second boundary rather than on a plain
+     setInterval(1000). An interval drifts — it fires 1000ms after the LAST
+     callback, not on the second itself — so a visible seconds display ends up
+     lagging the actual time by an arbitrary fraction and occasionally skips a
+     value outright. Re-aiming at each boundary keeps it honest, and it also
+     re-syncs for free after the tab has been throttled in the background. */
+  function scheduleClock() {
+    paintClock();
+    setTimeout(scheduleClock, 1000 - (Date.now() % 1000) + 5);
+  }
+  if (clockEl || merEl) scheduleClock();
 
   var yr = document.getElementById('yr');
   if (yr) yr.textContent = new Date().getFullYear();
@@ -113,28 +137,32 @@
   var wanted = false, fadeTimer = null, audible = false;
   var VOL = 0.4;
 
-  /* There may be no track on disk at all. When there isn't, the toggle takes
-     itself away rather than sitting there doing nothing when clicked.
+  /* The <audio> element ships with NO src — only data-src — so the 3.9MB track
+     is not competing with first paint. attachTrack() wires it up once the boot
+     screen has handed over; everything downstream is unchanged.
 
-     The `error` listener alone is not enough: the <audio> element is parsed
-     before this script runs, so a 404 can have already fired and settled by
-     the time we attach, and the handler would never be called. So check the
-     element's CURRENT state as well as listening for a future failure. */
-  var haveTrack = true;
+     Because of that, "no src yet" and "no track at all" are now different
+     states, and the old networkState===3 (NO_SOURCE) probe would report every
+     cold page as trackless and delete the toggle. Failure is therefore detected
+     ONLY from a real error once a src actually exists. */
+  var haveTrack = !!audio;
+  var attached = false;
   function noTrack() {
     if (!haveTrack) return;
     haveTrack = false;
     if (btn) btn.remove();
     try { audio.pause(); audio.removeAttribute('src'); audio.load(); } catch (e) {}
   }
-  if (audio) {
-    audio.addEventListener('error', noTrack);
-    if (audio.error) noTrack();
-    /* networkState 3 = NO_SOURCE: it gave up before we got here */
-    else if (audio.networkState === 3) noTrack();
-  } else {
-    haveTrack = false;
-    if (btn) btn.remove();
+  if (audio) audio.addEventListener('error', noTrack);
+  else if (btn) btn.remove();
+
+  function attachTrack() {
+    if (attached || !audio || !haveTrack) return;
+    attached = true;
+    var src = audio.getAttribute('data-src');
+    if (!src) { noTrack(); return; }
+    audio.src = src;
+    try { audio.load(); } catch (e) {}
   }
 
   function fadeTo(target, done) {
@@ -215,6 +243,7 @@
 
   function setSound(on) {
     if (!audio) return;
+    if (on) attachTrack();          // may be the first thing that ever needs it
     wanted = on;
     reflect();
     try { sessionStorage.setItem('rr_sound', on ? '1' : '0'); } catch (e) {}
@@ -245,8 +274,13 @@
      first real gesture to unmute it. */
   var soundOnByDefault = true;
   try { if (sessionStorage.getItem('rr_sound') === '0') soundOnByDefault = false; } catch (e) {}
+  reflect();
 
-  if (audio && haveTrack && soundOnByDefault) {
+  /* Called from the boot hand-off, so the fetch starts after the visitor is
+     looking at the site rather than at the loading bar. */
+  function startAudio() {
+    if (!audio || !haveTrack || !soundOnByDefault) return;
+    attachTrack();
     wanted = true;
     reflect();
     goAudible().then(function (ok) {
@@ -254,9 +288,8 @@
       rollSilently();      // otherwise roll it silently and wait for a gesture
       arm();
     });
-  } else {
-    reflect();
   }
+  RR.startAudio = startAudio;
 
   /* ---------------------------------------------------------- */
   /* INVERT                                                      */

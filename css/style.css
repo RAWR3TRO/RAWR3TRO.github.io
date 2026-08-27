@@ -209,6 +209,10 @@ a{color:inherit;text-decoration:none}
 .osd>*{position:absolute}
 .osd__tl{top:var(--gutter);left:var(--gutter);display:flex;align-items:center;gap:.45rem}
 .osd__tr{top:var(--gutter);right:var(--gutter);font-family:var(--f-seg);letter-spacing:.04em}
+.osd__tr i{
+  font-family:var(--f-vcr);font-style:normal;
+  font-size:.78em;letter-spacing:.1em;margin-left:.45em;
+}
 .osd__bl{bottom:var(--gutter);left:var(--gutter)}
 .osd__br{bottom:var(--gutter);right:var(--gutter);display:none}   /* the controls own this corner */
 .osd__rec{width:.55em;height:.55em;border-radius:50%;background:currentColor;animation:rec 1.6s steps(2) infinite}
