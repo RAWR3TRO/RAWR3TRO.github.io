@@ -568,9 +568,9 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
    the panel tracks the camera at every size. */
 .contact{height:100svh;display:grid;place-items:center}
 .contact .stage{
-  --cam-w:56cqw;
-  --cam-l:calc(100% - var(--cam-w) + 6cqw);
-  --cam-t:-44cqw;
+  --cam-w:70cqw;
+  --cam-l:calc(50% - var(--cam-w) * 0.4365);
+  --cam-t:calc(var(--cam-h) * -0.694);
   --cam-h:calc(var(--cam-w) * 1.11081);
   --lcd-l:calc(var(--cam-l) + var(--cam-w) * 0.1476);
   --lcd-w:calc(var(--cam-w) * 0.5778);
@@ -650,54 +650,32 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
 .lcd__links a::after{content:'';position:absolute;left:0;right:100%;bottom:0;height:1px;background:currentColor;transition:right .4s var(--ease)}
 .lcd__links a:hover::after{right:0}
 
-/* Camcorder hard right, running off that edge so the panel is the thing that
-   arrives from the side; the star and the dice take the left.
+/* The camcorder is centred on its PANEL, not on itself, and sized so the
+   contact card is the thing the section is about.
 
-   The VX2000 used to hold the bottom-left corner. It is gone from this
-   section: the dice now sits where it was, and a SECOND camcorder opposite
-   the main one was competing with it rather than supporting it. The artwork
-   is still in assets/el/ if it should come back somewhere.
+   The LCD sits at 14.8%-72.5% across the artwork and 50.5%-88.3% down it, so
+   its middle is at 43.65% and 69.4% of the camera. Centring the camera's own
+   box would leave the screen low and right of where the eye goes; --cam-l and
+   --cam-t below put the PANEL's centre on the stage's centre instead, at any
+   size, and the camera hangs off it wherever it lands.
 
-   --cam-l anchors to the RIGHT edge and overhangs it, rather than being a
-   fixed offset from the left. The camera's width is clamped differently at
-   each breakpoint — 56cqw here, min(98cqw,46cqh) narrow — so a left-anchored
-   number gives a different overhang every time the clamp changes, while this
-   holds the overhang constant and lets the left edge fall where it will.
-
-   The overhang is deliberately small: the LCD sits at 14.8%-72.5% ACROSS the
-   artwork, so everything past 72.5% is lens and can safely leave the frame,
-   but any more than this starts eating the panel the section exists to show.
-     camera  x 50-106%   LCD lands at x 58-91%
+   The cost is the top of the lens: the panel is in the lower half of the
+   artwork, so anchoring on it lifts the camera until roughly a third of it is
+   above the frame. That is the trade for a big centred screen, and 70cqw is
+   the largest that still lands the camera's foot at 92.3%, clear of the
+   colophon at 93%.
+     camera  x 19.4-89.4%   panel  x 29.7-70.1%  y 23.8-76.0%
 
    A turning square sweeps its half-DIAGONAL, 0.803 x its width — about 60%
    further than the box suggests — so the star is placed with that radius in
-   mind and clears the top of the section through a full revolution.
-
-   The left column runs star, dice, stacked mark from top to bottom. All three
-   share the camera's depth, so these gaps are fixed — nothing here can drift
-   into anything else.
-
-   The mark stops at y 87%, not at the section's foot: the OSD's SP marker is
-   position:fixed at y 743-762 in that corner, and the column was running the
-   RETRO row straight through it. Everything above it steps up to make room.
+   mind and clears the top of the section through a full revolution. The star
+   and the dice share the camera's depth, so these gaps are fixed.
 
      star-c  x -6-5%   sweeps y 0-32%   bleeding off the left
      dice-b  x 5-15%   y 34-52%
-     el--stack x 4-13% y 53-87%         the mark, above the SP marker */
+   Both clear the camera's left edge at 19.4%. */
 .el--star-c{left:-6%;top:4%;width:11%}
 .el--dice-b{left:5%;top:34%;width:10%}
-/* The stacked lockup: RAW. over RETRO, cut from the horizontal artwork at the
-   one clean column between the dot (x 562-580) and RETRO's R (x 582). Both
-   rows keep the SAME cap height — matching their widths instead would have
-   meant scaling one row against the other, and 581 against 805 is a 1.39x
-   difference the letterforms should not be asked to absorb. 805x1805.
-
-   It is the BLACK artwork, not the white one, because it is an .el: cut-outs
-   are drawn black and keyed by --el-inv, which is 1 on dark paper. Feeding
-   the white file in inverted it to black and it vanished into the page. The
-   hero mark is the other convention — white art keyed by --mark-inv — and the
-   two are not interchangeable. */
-.el--stack{left:4%;top:53%;width:8.5%}
 
 .lay--colophon{
   left:50%;bottom:5%;transform:translate(-50%,var(--ty,0));top:auto;
@@ -831,36 +809,21 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
        the top. The 46cqh term caps it by HEIGHT. It does not bind on a phone
        — at 375x812 it is 373px against 98cqw's 367px — so the portrait
        layout is untouched and only the squarer screens are pulled in. */
-    --cam-w:min(98cqw,46cqh);
-    --cam-l:calc(100% - var(--cam-w) + 8cqw);
-    --cam-t:calc(var(--cam-h) / -2);
+    /* Only the size changes here — --cam-l and --cam-t are inherited from
+       above and keep centring the panel. The 52cqh term binds on anything
+       squarer than a phone: the camera's foot lands at 50% + 0.306 x its
+       height, and past this it walks into the colophon. */
+    --cam-w:min(120cqw,52cqh);
   }
-  /* Hung off the camera's own edges, so they stay put as it is capped. */
-  /* Sized against the HEIGHT of the gap above the camera, which is ~24.5cqh
-     at every narrow aspect because the camera is capped at 46cqh. The old
-     42cqw/54cqw pair scaled with WIDTH instead, so at 768x1024 the star was
-     404px tall in a 250px gap and lost 41% of itself off the top.
-
-     15cqh is the largest that still clears both ends through a full turn:
-     the sweep is the half-DIAGONAL, 0.803 x the width, so the star needs
-     2 x 0.803 x w of room and the gap gives 24.5cqh. */
-  .el--star-c{
-    left:4cqw;width:15cqh;
-    top:calc(50% - var(--cam-h) / 2 - 21.8cqh);
-  }
-  /* The mark takes the bottom-left corner here and the dice steps aside: below
-     the camera there is one column's worth of room before the colophon, and
-     between a decorative prop and the brand mark the mark wins. The dice
-     still holds its place in the desktop column. */
-  .el--dice-b{display:none}
-  /* Anchored from the BOTTOM, not hung off the camera. Hung from the camera
-     it landed 3px short of the section's edge at 667x863 and sat on the OSD's
-     SP marker, which is position:fixed in that corner. 9cqh clears the marker
-     at every narrow height. It overlaps the camera's vertical band on a
-     tablet, which is fine — they are nowhere near each other across. */
-  .el--stack{
-    left:2cqw;width:13cqw;
-    top:auto;bottom:9cqh;
+  /* The star sits over the camera's BOX here but never over its ink: the
+     artwork's top-left quadrant is transparent — the lens is top-right, the
+     flip screen starts 36% down — so the two do not actually meet. A bigger
+     camera leaves no clear band above it to use instead. */
+  .el--star-c{left:4cqw;width:26cqw;top:4cqh}
+  /* Hung off the camera's foot, which is 50% + 0.306 x its height. */
+  .el--dice-b{
+    left:-14cqw;width:28cqw;
+    top:calc(50% + var(--cam-h) * 0.306 + 2cqw);
   }
   /* Type is sized against the PANEL, so a smaller panel shrinks it all in
      proportion — and at 212px wide the links land near 9px, which is too
