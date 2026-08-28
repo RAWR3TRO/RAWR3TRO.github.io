@@ -335,6 +335,7 @@
        bezel, where dim pixel type cannot be read. Equal depths hold their
        spacing whatever the scroll does. */
     'el--vx': -0.09, 'el--trv': 0.03, 'lcd': 0.03, 'lay--colophon': 0.03,
+    'el--star-c': 0.03, 'el--dice-b': 0.03,
     'el--pd170': -0.06
   };
   movers.forEach(function (m) {

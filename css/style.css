@@ -340,14 +340,32 @@ a{color:inherit;text-decoration:none}
 .el--star-a{animation:spin-cw 128s linear infinite}
 .el--star-b{animation:spin-ccw 173s linear infinite}
 
+/* The tagline used to be pinned at a flat 82% while the mark's height came
+   from `width` and an aspect ratio. On desktop that was fine — .stage is
+   always 16:9, so the mark is always 54.5cqh and the two numbers happened to
+   agree. On a narrow screen the mark is min(86cqw,83cqh): the moment the
+   height term binds, its height stops tracking the width and the two guesses
+   part company. At 667x863 the mark ran to 616px and the tagline sat at 587,
+   straight through the descenders.
+
+   So the tagline is now hung off the mark's actual bottom edge. --mark-b is
+   where that edge lands: the element is translated -54% of its OWN height off
+   the 50% line, so 46% of it falls below. Change the mark's size or its
+   translate and the tagline follows on its own. */
+.hero .stage{
+  --mark-w:42cqw;
+  --mark-h:calc(var(--mark-w) / 1.3696);   /* artwork is 1386x1012 */
+  --mark-b:calc(50% + var(--mark-h) * 0.46);
+  --tag-gap:6.9cqh;
+}
 .lay--mark{
-  left:50%;top:50%;width:42cqw;max-width:none;
+  left:50%;top:50%;width:var(--mark-w);max-width:none;
   transform:translate(-50%,calc(-54% + var(--ty,0)));
   filter:invert(var(--mark-inv));
   user-select:none;-webkit-user-drag:none;
 }
 .lay--tag{
-  left:50%;top:82%;transform:translate(-50%,var(--ty,0));
+  left:50%;top:calc(var(--mark-b) + var(--tag-gap));transform:translate(-50%,var(--ty,0));
   font-family:var(--f-vcr);font-size:1.1cqw;letter-spacing:.42em;
   white-space:nowrap;opacity:.55;text-indent:.42em;
 }
@@ -633,6 +651,20 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
    clears both the camera (which starts at x 25.4%) and the colophon. */
 .el--vx{left:-9%;top:44%;width:30%}
 
+/* A star up top and a dice at the foot, so the section is a composition
+   rather than one object floating in a lot of black.
+
+   Both carry the CAMERA's depth, not their own. On a narrow screen they are
+   tucked hard against it — the star's bottom edge and the camera's top edge
+   are within a few pixels — and any difference in depth would slide them
+   straight through it. The desktop star is set high enough to survive the
+   97px it can drift against the VX2000, which pulls the other way at -0.09.
+
+     star-c  x -6-15%   y -18-29%   upper left, bleeding off two edges
+     dice-b  x 85-98%   y 66-89%    lower right, clear of the colophon */
+.el--star-c{left:-6%;top:-18%;width:21%}
+.el--dice-b{left:85%;top:66%;width:13%}
+
 .lay--colophon{
   left:50%;bottom:5%;transform:translate(-50%,var(--ty,0));top:auto;
   font-family:var(--f-pix);font-size:.86cqw;letter-spacing:.14em;opacity:.45;white-space:nowrap;
@@ -706,7 +738,7 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
        dice     y  5-19%    top left
        star-a   y  3-32%    top right
        wordmark y 34-63%
-       tagline  y 68-70%
+       tagline  hung off the wordmark's bottom edge, not pinned
        star-b   y 78-110%   bottom left, bleeding off
 
      star-b used to start at 66% and ran straight under the tagline. The type
@@ -716,9 +748,15 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
   .el--star-b{left:-30%;top:78%;width:68%}
   .el--dice  {left:7%;top:5%;width:29%}
 
-  .lay--mark{width:min(86cqw,83cqh);transform:translate(-50%,calc(-56% + var(--ty,0)))}
+  /* -56% here rather than -54%, so 44% of the mark falls below the line. */
+  .hero .stage{
+    --mark-w:min(86cqw,83cqh);
+    --mark-b:calc(50% + var(--mark-h) * 0.44);
+    --tag-gap:3.6cqh;
+  }
+  .lay--mark{transform:translate(-50%,calc(-56% + var(--ty,0)))}
   .lay--tag{
-    top:68%;bottom:auto;font-size:min(2.6cqw,1.45cqh);letter-spacing:.26em;text-indent:.26em;
+    bottom:auto;font-size:min(2.6cqw,1.45cqh);letter-spacing:.26em;text-indent:.26em;
     transform:translate(-50%,var(--ty,0));
   }
 
@@ -753,9 +791,24 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
        camera  = 98cqw wide, centred, 1cqw of air on each side
        panel   = 56.6cqw x 41.1cqw, at 375x812 a 212x154 screen */
   .contact .stage{
-    --cam-w:98cqw;
-    --cam-l:1cqw;
-    --cam-t:-54.45cqw;
+    /* 98cqw alone is a width-only rule, and on anything squarer than a phone
+       it made the camera taller than the section: at 768x1024 it stood 836px
+       in a 1024px stage, ran under the colophon and pushed its own lens off
+       the top. The 46cqh term caps it by HEIGHT. It does not bind on a phone
+       — at 375x812 it is 373px against 98cqw's 367px — so the portrait
+       layout is untouched and only the squarer screens are pulled in. */
+    --cam-w:min(98cqw,46cqh);
+    --cam-l:calc(50% - var(--cam-w) / 2);
+    --cam-t:calc(var(--cam-h) / -2);
+  }
+  /* Hung off the camera's own edges, so they stay put as it is capped. */
+  .el--star-c{
+    left:56cqw;width:42cqw;
+    top:calc(50% - var(--cam-h) / 2 - 54cqw);
+  }
+  .el--dice-b{
+    left:-16cqw;width:30cqw;
+    top:calc(50% + var(--cam-h) / 2 + 2cqw);
   }
   /* Type is sized against the PANEL, so a smaller panel shrinks it all in
      proportion — and at 212px wide the links land near 9px, which is too
