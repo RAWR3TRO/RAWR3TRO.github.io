@@ -318,7 +318,7 @@
   /* ---------------------------------------------------------- */
   var backdrop = document.querySelector('.backdrop');
   var secs   = [].slice.call(document.querySelectorAll('.sec'));
-  var movers = [].slice.call(document.querySelectorAll('.el, .lay'));
+  var movers = [].slice.call(document.querySelectorAll('.el, .lay, .lcd'));
 
   /* drift, as a fraction of the viewport. Opposed signs inside a section are
      what make it read as depth rather than as the whole slab sliding. */
@@ -327,8 +327,10 @@
     'lay--mark': -0.05, 'lay--tag': 0.06,
     'lay--abouth': -0.045, 'lay--bio': 0.035,
     'el--minidv': 0.14, 'el--hi8': -0.11,
-    'lay--contact': -0.05, 'lay--links': 0.04, 'lay--colophon': 0.02,
-    'el--vx': -0.09, 'el--trv': 0.07, 'el--trv-scr': 0.07,
+    'lay--colophon': 0.02,
+    /* the panel MUST carry the camera's depth exactly, or the card slides out
+       of the screen it is supposed to be playing on as you scroll */
+    'el--vx': -0.09, 'el--trv': 0.07, 'lcd': 0.07,
     'el--pd170': -0.06
   };
   movers.forEach(function (m) {

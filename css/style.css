@@ -498,61 +498,117 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
 }
 
 /* ---- 04 contact ---- */
+/* The whole section is one object: a TRV33 with its panel flipped out and the
+   contact card playing on that panel.
+
+   Every number is derived from measurements taken off the artwork, so the
+   camera and the card can never drift apart — move --cam-* and the panel
+   follows. assets/el/trv33-lcd.png is 731x812 and its LCD is a genuine HOLE,
+   flood-filled to alpha 0.
+
+   That hole is NOT axis-aligned: the camera was photographed slightly turned,
+   so the opening is a shallow trapezoid — its top edge falls 0.79 degrees, the
+   bottom 1.10, and it narrows by 15px from top to bottom. An upright rectangle
+   the size of the hole's bounding box therefore pokes out of it at the corners,
+   which is exactly what it did. These fractions are the largest rectangle that
+   fits INSIDE the trapezoid everywhere, found by rotating a 1.3765 box about
+   the opening's centre and growing it until it touched: -0.95 degrees at 94.7%
+   of the bounding box, 422x307 of the source's 446x324.
+
+   The rotation is on the panel, so the card leans with the screen it is
+   supposed to be playing on — which is the point, not a side effect.
+
+   Everything is authored in cqw — 1% of the STAGE WIDTH — including the
+   vertical offsets, which are then hung off the stage's own centre line as
+   `calc(50% + ...)`. Percent-of-height is deliberately not used anywhere here.
+   The stage is 16:9 on desktop but the bare viewport on narrow screens (see
+   the .stage override under NARROW), so its aspect is not a constant, and any
+   figure that mixed the two axes only held at one of them. Doing it this way
+   makes --cam-h x 812/731 for the image's own aspect and nothing else, and
+   the panel tracks the camera at every size. */
 .contact{height:100svh;display:grid;place-items:center}
-.lay--contact{
-  left:50%;top:22%;transform:translate(-50%,var(--ty,0));
-  font-family:var(--f-vcr);font-size:5.2cqw;letter-spacing:.06em;
-  text-align:center;line-height:1.05;
+.contact .stage{
+  --cam-w:56cqw;
+  --cam-l:25.55cqw;
+  --cam-t:-40.8cqw;
+  --cam-h:calc(var(--cam-w) * 1.11081);
+  --lcd-l:calc(var(--cam-l) + var(--cam-w) * 0.1476);
+  --lcd-w:calc(var(--cam-w) * 0.5778);
+  --lcd-t:calc(var(--cam-t) + var(--cam-h) * 0.5051);
+  --lcd-h:calc(var(--cam-h) * 0.3778);
 }
-.lay--links{
-  left:50%;top:58%;transform:translate(-50%,var(--ty,0));
-  display:flex;gap:9cqw;
-}
-.lay--links a{
-  font-family:var(--f-vcr);font-size:1.5cqw;letter-spacing:.24em;
-  display:flex;flex-direction:column;gap:.55em;position:relative;padding-bottom:.5em;
-}
-.lay--links a i{font-family:var(--f-body);font-style:normal;font-size:.8em;letter-spacing:.06em;opacity:.62}
-.lay--links a::after{content:'';position:absolute;left:0;right:100%;bottom:0;height:1px;background:currentColor;transition:right .4s var(--ease)}
-.lay--links a:hover::after{right:0}
-/* The camera, bottom left — the one object on the page that says what all of
-   this was actually shot on. Same cut-out treatment as the dice and the stars,
-   so it inverts and blends with everything else.
+.el--trv{left:var(--cam-l);top:calc(50% + var(--cam-t));width:var(--cam-w)}
 
-   Bottom LEFT and bleeding off two edges, the way the stars do on the front —
-   a cut-out sitting politely inside the frame reads as a stock photo; one that
-   runs off it reads as art direction.
-
-   It stops at x 32%. The links are a centred group spanning roughly x 32-68%
-   and the colophon x 37-63%, so the camera clears both: small dim pixel type
-   over a photograph is unreadable whichever way the z-order falls. Source is
-   1200x896 (1.339), so at 39% of the stage width it stands
-   39 x (16/9) / 1.339 = 51.8% of its height, running y 54-106%. */
-.el--vx{left:-8%;top:40%;width:34%}
-
-/* The TRV33 hangs off the right and its LCD is a genuine HOLE in the PNG —
-   flood-filled to alpha 0 — so whatever sits behind shows through it in both
-   polarities without any masking.
-
-   Source is 825x1100, so at 25% of the stage width it stands
-   25 x (1100/825) x (16/9) = 59.3% of the stage height. The hole was measured
-   inside that image at x 23.3%, y 36.6%, 53.9% wide, 29.4% tall, which maps to:
-       left   68 + 0.233 x 25   = 73.8%
-       width       0.539 x 25   = 13.5%
-       top    22 + 0.366 x 59.3 = 43.7%
-       height      0.294 x 59.3 = 17.4%
-   The clip is a SIBLING, not a child: nesting it would make the container a
-   stacking context and the camera body would then blend against the clip
-   instead of against the page's paper. Move the camera and these four numbers
-   have to move with it. */
-.el--trv{left:68%;top:22%;width:25%}
-.el--trv-scr{
-  left:73.8%;top:43.7%;width:13.5%;height:17.4%;
-  object-fit:cover;
-  /* it is the picture, not a cut-out — no invert, no blend */
-  filter:none;mix-blend-mode:normal;
+/* The panel sits UNDER the camera and is cropped by the camera's own bezel —
+   no mask and no clip-path, because the artwork already is one. Two things
+   make that safe: .el is pointer-events:none, so the links stay clickable
+   through the image on top of them; and the camera is transparent over this
+   rectangle and opaque everywhere else, so its mix-blend-mode never has to
+   blend against the panel the way it would against an ordinary neighbour. */
+.lcd{
+  position:absolute;
+  left:var(--lcd-l);top:calc(50% + var(--lcd-t));
+  width:var(--lcd-w);height:var(--lcd-h);
+  transform:translateY(var(--ty,0)) rotate(-.95deg);
+  overflow:hidden;
   z-index:0;
+  /* The fitted panel is inset from the hole's bounding box, so a hair of the
+     page would otherwise show through the opening around it — invisible on
+     black, a bright halo once inverted. The spread paints that margin dark and
+     is itself covered by the bezel, which is roughly 45px of opaque artwork on
+     every side. cq units resolve against .stage here, not against .lcd. */
+  box-shadow:0 0 0 1.1cqw #07080a;
+  /* type inside is sized against the PANEL, not the stage. The hole's aspect
+     is fixed at 1.377, so one set of cq values holds at every screen size and
+     the card scales as one piece instead of reflowing. */
+  container-type:size;
+  /* A lit LCD is emitted light: it keeps its own polarity in both themes,
+     exactly like the PSP's screen. Inverting it would turn every highlight in
+     the footage into a smear. */
+  background:#07080a;
+  color:#fff;
+  display:grid;place-items:center;
 }
+.lcd__feed{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  /* footage UNDER the card, not beside it. Knocked well back so the type stays
+     the thing you read, and desaturated because the only colour anywhere else
+     on this site is the SMPTE bars on the boot screen. */
+  filter:grayscale(1) contrast(1.05) brightness(.42);
+  opacity:.55;
+}
+/* The fitted panel stops a few pixels short of the opening and the spread
+   fills the rest flat, so without this there is a faint tonal step where the
+   footage ends and that flat fill begins. The vignette lands the footage on
+   the same value at the edge, and a viewfinder falling off into its own
+   corners is what the real thing does anyway. */
+.lcd::after{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:1;
+  background:radial-gradient(118% 118% at 50% 44%, transparent 52%, #07080a 100%);
+}
+.lcd__ui{
+  position:relative;z-index:2;
+  display:flex;flex-direction:column;align-items:center;gap:8cqh;
+  text-align:center;padding:0 7cqw;
+}
+.lcd__h{
+  margin:0;font-family:var(--f-vcr);font-weight:400;
+  font-size:13cqw;line-height:1.04;letter-spacing:.055em;
+}
+/* Stacked rather than side by side: across a panel this narrow the two would
+   have to shrink to about 10px on a phone to sit in a row. */
+.lcd__links{display:flex;flex-direction:column;gap:6cqh;align-items:center}
+.lcd__links a{
+  font-family:var(--f-vcr);font-size:4.4cqw;letter-spacing:.2em;color:#fff;
+  display:flex;flex-direction:column;gap:.5em;position:relative;padding-bottom:.45em;
+}
+.lcd__links a i{font-family:var(--f-body);font-style:normal;font-size:.78em;letter-spacing:.05em;opacity:.68}
+.lcd__links a::after{content:'';position:absolute;left:0;right:100%;bottom:0;height:1px;background:currentColor;transition:right .4s var(--ease)}
+.lcd__links a:hover::after{right:0}
+
+/* The VX2000 keeps the bottom-left corner as a second prop, pulled back so it
+   clears both the camera (which starts at x 25.4%) and the colophon. */
+.el--vx{left:-9%;top:44%;width:30%}
 
 .lay--colophon{
   left:50%;bottom:5%;transform:translate(-50%,var(--ty,0));top:auto;
@@ -658,19 +714,23 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
   .lay--abouth{top:20%;font-size:min(8cqw,4.4cqh)}
   .lay--bio{left:7%;top:31%;width:86%;margin-left:0;font-size:min(3.9cqw,2.15cqh);text-align:left}
 
-  .lay--contact{top:18%;font-size:min(13cqw,7.2cqh);line-height:1.05}
-  .lay--links{top:50%;flex-direction:column;gap:8cqh;align-items:center;text-align:center}
-  .lay--links a{font-size:min(4.4cqw,2.45cqh);align-items:center}
   .lay--colophon{font-size:min(2.1cqw,1.16cqh);bottom:6%}
-  /* portrait: the links stack, so the camera drops to the very bottom and is
-     allowed to bleed off the edge rather than fighting them for the corner */
-  /* portrait: the cameras take the bottom corners. The TRV33's panel is placed
-     from the top here rather than the bottom — a bottom-anchored hole would
-     need percentage-times-percentage arithmetic inside calc(), which is not
-     valid CSS and silently drops the whole declaration. */
-  .el--vx {left:-16%;top:auto;bottom:-4%;width:58%;transform:translateY(var(--ty,0))}
-  .el--trv{left:60%;top:46%;width:46%}
-  .el--trv-scr{left:70.7%;top:86.9%;width:24.8%;height:32.1%}
+
+  /* The narrow .stage is the VIEWPORT, portrait, not a cropped 16:9 box — so
+     the camera is re-aimed here, but only these three numbers change: the
+     derived --lcd-* are pure cqw and follow on their own.
+       --cam-h = 152 x 1.11081 = 168.8cqw
+       panel   = 87.8cqw wide, 63.8cqw tall, centred on the stage
+     At 375x812 that is a 329x239 panel and a 570px-wide camera bleeding off
+     both edges, its foot at y 614 of 812 — clear of the colophon. */
+  .contact .stage{
+    --cam-w:152cqw;
+    --cam-l:-16.34cqw;
+    --cam-t:-113.25cqw;
+  }
+  /* One camera on a phone. The VX2000 would sit straight across the panel
+     wherever the corner puts it. */
+  .el--vx{display:none}
 }
 
 /* ============ REDUCED MOTION ============ */
@@ -683,7 +743,7 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
   .el.rev,.el.rev.is-shown{opacity:1;filter:invert(var(--el-inv));transition:none}
   .el,.lay{--ty:0 !important}
   [data-rise]{opacity:1;transform:none;filter:none;transition:none}
-  .lay--links a::after,.ctl__b::after{transition:none}
+  .lcd__links a::after,.ctl__b::after{transition:none}
 }
 
 /* ============ TABLET BAND ============
