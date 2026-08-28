@@ -432,6 +432,24 @@ a{color:inherit;text-decoration:none}
    would be noise. It pulses slowly rather than sitting static, because a line
    of dim grey type at the bottom of a dark screen is easy to read straight
    past. */
+/* Nothing above the fold said the machine does anything. The key legend and
+   the tap hint are both control legends — they tell you WHICH input once you
+   already know there is one to give. This is the invitation, and it sits above
+   the PSP where it is read before the thing it describes. */
+.machine__lede{
+  position:absolute;left:50%;transform:translateX(-50%);
+  top:clamp(1.5rem,6.5vh,4rem);
+  z-index:6;margin:0;
+  font-family:var(--f-vcr);font-size:clamp(.62rem,1.1vw,.82rem);
+  letter-spacing:.22em;line-height:1.6;text-align:center;
+  /* 80ch, not the ~56 the string measures: ch is the zero-glyph advance and
+     takes no account of the .22em tracking, which on 55 characters is another
+     160px. The 88vw term is the one that binds on a phone, where it wraps to
+     three lines. */
+  max-width:min(88vw,80ch);
+  color:var(--on-dark);opacity:.55;
+  pointer-events:none;
+}
 .machine__hint{
   position:absolute;left:50%;transform:translateX(-50%);
   bottom:calc(clamp(1.6rem,5vh,3.2rem) + 4.6rem);
@@ -600,6 +618,10 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
 .lcd__links{display:flex;flex-direction:column;gap:6cqh;align-items:center}
 .lcd__links a{
   font-family:var(--f-vcr);font-size:4.4cqw;letter-spacing:.2em;color:#fff;
+  /* Explicit, because the inherited 1.6 adds 60% to each of the four lines in
+     this block and that is most of the panel's height. On a phone it pushed
+     the email address out through the bottom of the screen. */
+  line-height:1;
   display:flex;flex-direction:column;gap:.5em;position:relative;padding-bottom:.45em;
 }
 .lcd__links a i{font-family:var(--f-body);font-style:normal;font-size:.78em;letter-spacing:.05em;opacity:.68}
@@ -719,17 +741,35 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
   /* The narrow .stage is the VIEWPORT, portrait, not a cropped 16:9 box — so
      the camera is re-aimed here, but only these three numbers change: the
      derived --lcd-* are pure cqw and follow on their own.
-       --cam-h = 152 x 1.11081 = 168.8cqw
-       panel   = 87.8cqw wide, 63.8cqw tall, centred on the stage
-     At 375x812 that is a 329x239 panel and a 570px-wide camera bleeding off
-     both edges, its foot at y 614 of 812 — clear of the colophon. */
+
+     The whole camcorder shows on a phone. It is centred in the stage rather
+     than having its panel centred, because the LCD sits at 43.65% across the
+     artwork — centring the panel instead pushes the lens off the right edge,
+     which is what used to crop the camera down to a bare bezel. The card
+     therefore sits a little left of centre, which is where it is on the
+     camera.
+       --cam-h = 98 x 1.11081 = 108.9cqw
+       camera  = 98cqw wide, centred, 1cqw of air on each side
+       panel   = 56.6cqw x 41.1cqw, at 375x812 a 212x154 screen */
   .contact .stage{
-    --cam-w:152cqw;
-    --cam-l:-16.34cqw;
-    --cam-t:-113.25cqw;
+    --cam-w:98cqw;
+    --cam-l:1cqw;
+    --cam-t:-54.45cqw;
   }
-  /* One camera on a phone. The VX2000 would sit straight across the panel
-     wherever the corner puts it. */
+  /* Type is sized against the PANEL, so a smaller panel shrinks it all in
+     proportion — and at 212px wide the links land near 9px, which is too
+     small to be a contact detail. The heading gives up the room: it is the
+     one thing that reads at any size. */
+  .lcd__h{font-size:11.5cqw}
+  .lcd__ui{gap:5cqh;padding:0 6cqw}
+  .lcd__links{gap:5cqh}
+  .lcd__links a{font-size:6.4cqw;letter-spacing:.14em}
+
+  /* The invert/sound block is position:fixed in the bottom-right corner, and a
+     centred colophon runs straight under it at this width. Same lift the rail
+     and the hint take on the machine — clears two stacked buttons. */
+  .lay--colophon{bottom:calc(clamp(1.6rem,5vh,3.2rem) + 4.2rem)}
+
   .el--vx{display:none}
 }
 

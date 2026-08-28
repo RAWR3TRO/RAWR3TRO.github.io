@@ -327,10 +327,14 @@
     'lay--mark': -0.05, 'lay--tag': 0.06,
     'lay--abouth': -0.045, 'lay--bio': 0.035,
     'el--minidv': 0.14, 'el--hi8': -0.11,
-    'lay--colophon': 0.02,
-    /* the panel MUST carry the camera's depth exactly, or the card slides out
-       of the screen it is supposed to be playing on as you scroll */
-    'el--vx': -0.09, 'el--trv': 0.07, 'lcd': 0.07,
+    /* These three share a depth on purpose. The panel MUST carry the camera's
+       exactly, or the card slides out of the screen it is supposed to be
+       playing on. The colophon joins them because it does not: at 0.02
+       against the camera's old 0.07 the two closed 72px over the scroll while
+       only 39px apart at rest, and the line ended up on the camera's white
+       bezel, where dim pixel type cannot be read. Equal depths hold their
+       spacing whatever the scroll does. */
+    'el--vx': -0.09, 'el--trv': 0.03, 'lcd': 0.03, 'lay--colophon': 0.03,
     'el--pd170': -0.06
   };
   movers.forEach(function (m) {
