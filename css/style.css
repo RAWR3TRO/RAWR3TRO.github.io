@@ -300,13 +300,14 @@ a{color:inherit;text-decoration:none}
 @keyframes spin-ccw{to{--spin:-360deg}}
 
 /* ---- 01 front ----
-   The wordmark IS the hero: it is a hand-drawn graffiti lockup and anything
-   set next to it competes. So it gets the middle of the stage at size, and
-   the only other thing on the page is one line of tape-deck caps beneath. */
+   The wordmark IS the hero: a condensed lockup that wants to be read as one
+   solid block, and anything set next to it competes. So it gets the middle of
+   the stage at size, and the only other thing on the page is one line of
+   tape-deck caps beneath. */
 .hero{height:100svh;display:grid;place-items:center}
-/* The mark is 1.506:1, so at 44cqw it stands 29.2cqw tall — which on a 16:9
-   stage is 51.9cqh, running roughly 22%–74% of the height. The tagline then
-   sits at 82% with real air beneath the drips.
+/* The mark is 1.370:1, so at 42cqw it stands 30.7cqw tall — which on a 16:9
+   stage is 54.5cqh. The -54% shift on its own height puts it at 20.6%–75.1%,
+   and the tagline then sits at 82% with real air beneath it.
 
    Both are placed with `top`, never by translating the tagline down by some
    multiple of ITS OWN height: that percentage resolves against the line box,
@@ -323,7 +324,7 @@ a{color:inherit;text-decoration:none}
    resulting height has to be reasoned about as a percent of its HEIGHT:
    star-b 1167x1170, star-a 481x603, dice 658x648.
 
-     wordmark  x 29-71%   y 22-74%
+     wordmark  x 29-71%   y 21-75%
      tagline   x 29-71%   y 82%
      star-b    x -13-20%  y 0-59%     upper left, bleeding off the edge
      star-a    x 73-98%   y -7-49%    upper right, bleeding off the top
