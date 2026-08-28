@@ -673,10 +673,31 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
    further than the box suggests — so the star is placed with that radius in
    mind and clears the top of the section through a full revolution.
 
-     star-c  x -6-7%    sweeps y 2-39%    bleeding off the left
-     dice-b  x 5-19%    y 64-87%          above the colophon */
-.el--star-c{left:-6%;top:6%;width:13%}
-.el--dice-b{left:5%;top:64%;width:14%}
+   The left column runs star, dice, stacked mark from top to bottom. All three
+   share the camera's depth, so these gaps are fixed — nothing here can drift
+   into anything else.
+
+   The mark stops at y 87%, not at the section's foot: the OSD's SP marker is
+   position:fixed at y 743-762 in that corner, and the column was running the
+   RETRO row straight through it. Everything above it steps up to make room.
+
+     star-c  x -6-5%   sweeps y 0-32%   bleeding off the left
+     dice-b  x 5-15%   y 34-52%
+     el--stack x 4-13% y 53-87%         the mark, above the SP marker */
+.el--star-c{left:-6%;top:4%;width:11%}
+.el--dice-b{left:5%;top:34%;width:10%}
+/* The stacked lockup: RAW. over RETRO, cut from the horizontal artwork at the
+   one clean column between the dot (x 562-580) and RETRO's R (x 582). Both
+   rows keep the SAME cap height — matching their widths instead would have
+   meant scaling one row against the other, and 581 against 805 is a 1.39x
+   difference the letterforms should not be asked to absorb. 805x1805.
+
+   It is the BLACK artwork, not the white one, because it is an .el: cut-outs
+   are drawn black and keyed by --el-inv, which is 1 on dark paper. Feeding
+   the white file in inverted it to black and it vanished into the page. The
+   hero mark is the other convention — white art keyed by --mark-inv — and the
+   two are not interchangeable. */
+.el--stack{left:4%;top:53%;width:8.5%}
 
 .lay--colophon{
   left:50%;bottom:5%;transform:translate(-50%,var(--ty,0));top:auto;
@@ -827,9 +848,19 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
     left:4cqw;width:15cqh;
     top:calc(50% - var(--cam-h) / 2 - 21.8cqh);
   }
-  .el--dice-b{
-    left:-16cqw;width:30cqw;
-    top:calc(50% + var(--cam-h) / 2 + 2cqw);
+  /* The mark takes the bottom-left corner here and the dice steps aside: below
+     the camera there is one column's worth of room before the colophon, and
+     between a decorative prop and the brand mark the mark wins. The dice
+     still holds its place in the desktop column. */
+  .el--dice-b{display:none}
+  /* Anchored from the BOTTOM, not hung off the camera. Hung from the camera
+     it landed 3px short of the section's edge at 667x863 and sat on the OSD's
+     SP marker, which is position:fixed in that corner. 9cqh clears the marker
+     at every narrow height. It overlaps the camera's vertical band on a
+     tablet, which is fine — they are nowhere near each other across. */
+  .el--stack{
+    left:2cqw;width:13cqw;
+    top:auto;bottom:9cqh;
   }
   /* Type is sized against the PANEL, so a smaller panel shrinks it all in
      proportion — and at 212px wide the links land near 9px, which is too
