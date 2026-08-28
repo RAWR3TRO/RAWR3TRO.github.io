@@ -20,7 +20,7 @@ window.RR_WORKS = [
     sub: 'Rauh-Welt widebody, built in the open',
     meta: 'MEET · 2026',
     img: 'assets/works/rwb.jpg',
-    link: 'https://www.instagram.com/raw._retro/',
+    link: 'https://www.instagram.com/raw.r3tro/',
     vid: 'assets/reels/rwb.mp4'
   },
   {
@@ -29,7 +29,7 @@ window.RR_WORKS = [
     sub: 'All day in the infield',
     meta: 'MEET · 2025',
     img: 'assets/works/daytona.jpg',
-    link: 'https://www.instagram.com/raw._retro/',
+    link: 'https://www.instagram.com/raw.r3tro/',
     vid: 'assets/reels/daytona.mp4'
   },
   {
@@ -38,7 +38,7 @@ window.RR_WORKS = [
     sub: 'Carbon, alcantara and a bad tracking head',
     meta: 'EDIT · 2026',
     img: 'assets/works/glitch.jpg',
-    link: 'https://www.instagram.com/raw._retro/',
+    link: 'https://www.instagram.com/raw.r3tro/',
     vid: 'assets/reels/glitch.mp4'
   },
   {
@@ -47,7 +47,7 @@ window.RR_WORKS = [
     sub: 'Night run',
     meta: 'EDIT · 2026',
     img: 'assets/works/q37.jpg',
-    link: 'https://www.instagram.com/raw._retro/',
+    link: 'https://www.instagram.com/raw.r3tro/',
     vid: 'assets/reels/q37.mp4'
   },
   {
@@ -56,7 +56,7 @@ window.RR_WORKS = [
     sub: 'Parking garage, January',
     meta: 'MEET · JAN 2025',
     img: 'assets/works/ucf.jpg',
-    link: 'https://www.instagram.com/raw._retro/',
+    link: 'https://www.instagram.com/raw.r3tro/',
     vid: 'assets/reels/ucf.mp4'
   },
   {
@@ -65,7 +65,7 @@ window.RR_WORKS = [
     sub: 'Rolling shots, no tripod',
     meta: 'EDIT · 2026',
     img: 'assets/works/rollerz.jpg',
-    link: 'https://www.instagram.com/raw._retro/',
+    link: 'https://www.instagram.com/raw.r3tro/',
     vid: 'assets/reels/rollerz.mp4'
   },
   {
@@ -74,7 +74,7 @@ window.RR_WORKS = [
     sub: 'Straight off the tape, ungraded',
     meta: 'EDIT · 2025',
     img: 'assets/works/sd480.jpg',
-    link: 'https://www.instagram.com/raw._retro/',
+    link: 'https://www.instagram.com/raw.r3tro/',
     vid: 'assets/reels/sd480.mp4'
   },
   {
@@ -83,7 +83,7 @@ window.RR_WORKS = [
     sub: 'Iron, mirrors and a date stamp',
     meta: 'SESSION · JAN 2026',
     img: 'assets/works/thelab.jpg',
-    link: 'https://www.instagram.com/raw._retro/',
+    link: 'https://www.instagram.com/raw.r3tro/',
     vid: 'assets/reels/thelab.mp4'
   },
   {
@@ -92,7 +92,7 @@ window.RR_WORKS = [
     sub: 'Second session',
     meta: 'SESSION · FEB 2026',
     img: 'assets/works/lab1.jpg',
-    link: 'https://www.instagram.com/raw._retro/',
+    link: 'https://www.instagram.com/raw.r3tro/',
     vid: 'assets/reels/lab1.mp4'
   },
   {
@@ -101,7 +101,7 @@ window.RR_WORKS = [
     sub: 'Closing the place down',
     meta: 'SESSION · FEB 2026',
     img: 'assets/works/lab2.jpg',
-    link: 'https://www.instagram.com/raw._retro/',
+    link: 'https://www.instagram.com/raw.r3tro/',
     vid: 'assets/reels/lab2.mp4'
   }
 ];

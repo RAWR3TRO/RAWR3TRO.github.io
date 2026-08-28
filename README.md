@@ -1,6 +1,6 @@
 # RAW.RETRO
 
-A static, single-page site for [@raw._retro](https://www.instagram.com/raw._retro/) —
+A static, single-page site for [@raw.r3tro](https://www.instagram.com/raw.r3tro/) —
 retro camcorder photography and video. Old Sony camcorders, shot to tape:
 car meets, night runs, gyms, and now taking bookings for concerts, weddings
 and events.

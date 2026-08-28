@@ -326,9 +326,10 @@
     'el--star-a': 0.16, 'el--star-b': -0.13, 'el--dice': 0.08,
     'lay--mark': -0.05, 'lay--tag': 0.06,
     'lay--abouth': -0.045, 'lay--bio': 0.035,
-    'el--dv-a': 0.14, 'el--dv-b': -0.11, 'el--ms': 0.09,
+    'el--minidv': 0.14, 'el--hi8': -0.11,
     'lay--contact': -0.05, 'lay--links': 0.04, 'lay--colophon': 0.02,
-    'el--vx': -0.09
+    'el--vx': -0.09, 'el--trv': 0.07, 'el--trv-scr': 0.07,
+    'el--pd170': -0.06
   };
   movers.forEach(function (m) {
     var d = 0;

@@ -756,11 +756,26 @@ function init() {
   /* ---------------------------------------------------------- */
   /* INPUT                                                       */
   /* ---------------------------------------------------------- */
+  /* A phone is not a small desktop. The d-pad and face buttons are a few
+     millimetres across at phone scale, so raycasting onto them is a game of
+     darts — and the desktop mapping (tap the screen = open Instagram) means a
+     stray tap navigates the visitor off the site entirely.
+
+     So on a coarse pointer the whole canvas becomes the control: a tap
+     advances the channel, a horizontal swipe steps either way, and Instagram
+     moves to the ↗ in the rail, which is a real 34px target. Fine pointers
+     keep every bit of the original behaviour. */
+  const coarse = window.matchMedia('(pointer: coarse)').matches;
+
   const ray = new THREE.Raycaster();
   const ptr = new THREE.Vector2();
   let hovered = null;
   let dragging = false, dragged = false, lastX = 0, lastY = 0;
   let spinY = 0, spinX = 0, spinVY = 0, spinVX = 0;
+  /* total travel for the whole gesture, so a swipe can be distinguished from a
+     rotate on release — the per-move deltas above are consumed by the spin */
+  let travelX = 0, travelY = 0;
+  const SWIPE_MIN = 42;          // px before a drag counts as a swipe
 
   function toNDC(e) {
     const r = canvas.getBoundingClientRect();
@@ -779,6 +794,7 @@ function init() {
   canvas.addEventListener('pointerdown', (e) => {
     toNDC(e);
     dragging = true; dragged = false;
+    travelX = travelY = 0;
     lastX = e.clientX; lastY = e.clientY;
     canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId);
   });
@@ -787,6 +803,7 @@ function init() {
     toNDC(e);
     if (dragging) {
       const dx = e.clientX - lastX, dy = e.clientY - lastY;
+      travelX += dx; travelY += dy;
       if (Math.abs(dx) + Math.abs(dy) > 4) dragged = true;
       spinVY += dx * 0.00042;
       spinVX += dy * 0.00030;
@@ -802,7 +819,22 @@ function init() {
 
   function endDrag() { dragging = false; }
   canvas.addEventListener('pointerup', (e) => {
-    if (!dragged) {
+    if (coarse) {
+      const horiz = Math.abs(travelX) > Math.abs(travelY);
+      if (dragged && horiz && Math.abs(travelX) > SWIPE_MIN) {
+        /* swipe: drag left to go forward, the way a carousel reads */
+        press(travelX < 0 ? 'right' : 'left');
+      } else if (!dragged) {
+        /* a tap anywhere steps forward — but a tap that landed on a real
+           button still does that button's job, so the d-pad keeps working
+           for anyone who does hit it */
+        toNDC(e);
+        const o = pick();
+        const role = o && o.userData.role;
+        if (role && role !== 'screen' && role !== 'cross' && role !== 'start') press(role);
+        else press('right');
+      }
+    } else if (!dragged) {
       toNDC(e);
       const o = pick();
       if (o && o.userData.role) press(o.userData.role);
@@ -862,7 +894,19 @@ function init() {
     const b = modelBox();
     if (!b) return;
     const size = b.getSize(new THREE.Vector3());
-    const fill = window.innerWidth < 720 ? 0.94 : 0.72;   // fraction of the frame
+    /* How much of the frame the machine takes.
+
+       A portrait phone fits on WIDTH — distW dominates below, because the
+       aspect divides into it — so the machine was leaving most of the screen
+       empty above and below and reading as a thumbnail of itself.
+
+       Note the `+ size.z` on the next line: it pushes the camera back far
+       enough to clear the model's own depth, and it is added AFTER the fill
+       division, so it quietly eats most of a small fill increase. Going from
+       0.94 to 1.06 barely moved. 1.2 actually overfills the width by about a
+       tenth, cropping the outer grips, which is what makes it read as the
+       object you came for rather than a picture of one. */
+    const fill = window.innerWidth < 720 ? 1.2 : 0.72;
     const vFov = THREE.MathUtils.degToRad(camera.fov);
     const distH = (size.y / 2) / Math.tan(vFov / 2);
     const distW = (size.x / 2) / (Math.tan(vFov / 2) * camera.aspect);
