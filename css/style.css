@@ -569,8 +569,8 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
 .contact{height:100svh;display:grid;place-items:center}
 .contact .stage{
   --cam-w:56cqw;
-  --cam-l:25.55cqw;
-  --cam-t:-40.8cqw;
+  --cam-l:calc(100% - var(--cam-w) + 6cqw);
+  --cam-t:-44cqw;
   --cam-h:calc(var(--cam-w) * 1.11081);
   --lcd-l:calc(var(--cam-l) + var(--cam-w) * 0.1476);
   --lcd-w:calc(var(--cam-w) * 0.5778);
@@ -650,29 +650,33 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
 .lcd__links a::after{content:'';position:absolute;left:0;right:100%;bottom:0;height:1px;background:currentColor;transition:right .4s var(--ease)}
 .lcd__links a:hover::after{right:0}
 
-/* The VX2000 keeps the bottom-left corner as a second prop, pulled back so it
-   clears both the camera (which starts at x 25.4%) and the colophon. */
-.el--vx{left:-9%;top:44%;width:30%}
+/* Camcorder hard right, running off that edge so the panel is the thing that
+   arrives from the side; the star and the dice take the left.
 
-/* A star up top and a dice at the foot, so the section is a composition
-   rather than one object floating in a lot of black.
+   The VX2000 used to hold the bottom-left corner. It is gone from this
+   section: the dice now sits where it was, and a SECOND camcorder opposite
+   the main one was competing with it rather than supporting it. The artwork
+   is still in assets/el/ if it should come back somewhere.
 
-   Both carry the CAMERA's depth, not their own. On a narrow screen they are
-   tucked hard against it — the star's bottom edge and the camera's top edge
-   are within a few pixels — and any difference in depth would slide them
-   straight through it. The desktop star is set high enough to survive the
-   97px it can drift against the VX2000, which pulls the other way at -0.09.
+   --cam-l anchors to the RIGHT edge and overhangs it, rather than being a
+   fixed offset from the left. The camera's width is clamped differently at
+   each breakpoint — 56cqw here, min(98cqw,46cqh) narrow — so a left-anchored
+   number gives a different overhang every time the clamp changes, while this
+   holds the overhang constant and lets the left edge fall where it will.
 
-   A turning square sweeps its half-DIAGONAL, not its half-width: at 0.803 x
-   its width from the centre, about 60% further than the box suggests. So the
-   star is placed with that radius in mind — it clears the top and bottom of
-   the section through a full revolution and only ever runs off the right
-   edge, which is the one cut that reads as deliberate.
+   The overhang is deliberately small: the LCD sits at 14.8%-72.5% ACROSS the
+   artwork, so everything past 72.5% is lens and can safely leave the frame,
+   but any more than this starts eating the panel the section exists to show.
+     camera  x 50-106%   LCD lands at x 58-91%
 
-     star-c  x 86-103%  y 10-48%    upper right, bleeding off the side only
-     dice-b  x 85-98%   y 66-89%    lower right, clear of the colophon */
-.el--star-c{left:86%;top:10%;width:17%}
-.el--dice-b{left:85%;top:66%;width:13%}
+   A turning square sweeps its half-DIAGONAL, 0.803 x its width — about 60%
+   further than the box suggests — so the star is placed with that radius in
+   mind and clears the top of the section through a full revolution.
+
+     star-c  x -6-7%    sweeps y 2-39%    bleeding off the left
+     dice-b  x 5-19%    y 64-87%          above the colophon */
+.el--star-c{left:-6%;top:6%;width:13%}
+.el--dice-b{left:5%;top:64%;width:14%}
 
 .lay--colophon{
   left:50%;bottom:5%;transform:translate(-50%,var(--ty,0));top:auto;
@@ -807,7 +811,7 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
        — at 375x812 it is 373px against 98cqw's 367px — so the portrait
        layout is untouched and only the squarer screens are pulled in. */
     --cam-w:min(98cqw,46cqh);
-    --cam-l:calc(50% - var(--cam-w) / 2);
+    --cam-l:calc(100% - var(--cam-w) + 8cqw);
     --cam-t:calc(var(--cam-h) / -2);
   }
   /* Hung off the camera's own edges, so they stay put as it is capped. */
@@ -820,7 +824,7 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
      the sweep is the half-DIAGONAL, 0.803 x the width, so the star needs
      2 x 0.803 x w of room and the gap gives 24.5cqh. */
   .el--star-c{
-    left:52cqw;width:15cqh;
+    left:4cqw;width:15cqh;
     top:calc(50% - var(--cam-h) / 2 - 21.8cqh);
   }
   .el--dice-b{
@@ -841,7 +845,6 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
      and the hint take on the machine — clears two stacked buttons. */
   .lay--colophon{bottom:calc(clamp(1.6rem,5vh,3.2rem) + 4.2rem)}
 
-  .el--vx{display:none}
 }
 
 /* ============ REDUCED MOTION ============ */
