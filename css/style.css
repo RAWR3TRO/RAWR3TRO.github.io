@@ -336,9 +336,12 @@ a{color:inherit;text-decoration:none}
 .el--star-a{left:73%;top:-7%;width:25%}
 .el--star-b{left:-13%;top:0%;width:33%}
 .el--dice  {left:6%;top:62%;width:17%}
-.el--star-a,.el--star-b{transform:translateY(var(--ty,0)) rotate(var(--spin))}
+.el--star-a,.el--star-b,.el--star-c{transform:translateY(var(--ty,0)) rotate(var(--spin))}
 .el--star-a{animation:spin-cw 128s linear infinite}
 .el--star-b{animation:spin-ccw 173s linear infinite}
+/* Contact's star. Its own period, so it never falls into step with the two
+   on the front — three stars turning together would read as one animation. */
+.el--star-c{animation:spin-cw 151s linear infinite}
 
 /* The tagline used to be pinned at a flat 82% while the mark's height came
    from `width` and an aspect ratio. On desktop that was fine — .stage is
@@ -660,9 +663,15 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
    straight through it. The desktop star is set high enough to survive the
    97px it can drift against the VX2000, which pulls the other way at -0.09.
 
-     star-c  x -6-15%   y -18-29%   upper left, bleeding off two edges
+   A turning square sweeps its half-DIAGONAL, not its half-width: at 0.803 x
+   its width from the centre, about 60% further than the box suggests. So the
+   star is placed with that radius in mind — it clears the top and bottom of
+   the section through a full revolution and only ever runs off the right
+   edge, which is the one cut that reads as deliberate.
+
+     star-c  x 86-103%  y 10-48%    upper right, bleeding off the side only
      dice-b  x 85-98%   y 66-89%    lower right, clear of the colophon */
-.el--star-c{left:-6%;top:-18%;width:21%}
+.el--star-c{left:86%;top:10%;width:17%}
 .el--dice-b{left:85%;top:66%;width:13%}
 
 .lay--colophon{
@@ -802,9 +811,17 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
     --cam-t:calc(var(--cam-h) / -2);
   }
   /* Hung off the camera's own edges, so they stay put as it is capped. */
+  /* Sized against the HEIGHT of the gap above the camera, which is ~24.5cqh
+     at every narrow aspect because the camera is capped at 46cqh. The old
+     42cqw/54cqw pair scaled with WIDTH instead, so at 768x1024 the star was
+     404px tall in a 250px gap and lost 41% of itself off the top.
+
+     15cqh is the largest that still clears both ends through a full turn:
+     the sweep is the half-DIAGONAL, 0.803 x the width, so the star needs
+     2 x 0.803 x w of room and the gap gives 24.5cqh. */
   .el--star-c{
-    left:56cqw;width:42cqw;
-    top:calc(50% - var(--cam-h) / 2 - 54cqw);
+    left:52cqw;width:15cqh;
+    top:calc(50% - var(--cam-h) / 2 - 21.8cqh);
   }
   .el--dice-b{
     left:-16cqw;width:30cqw;
@@ -831,7 +848,7 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   .cue i::after,.rail.is-swap b,.osd__rec,.grain,.scan::after{animation:none}
-  .el--star-a,.el--star-b{animation:none;transform:translateY(var(--ty,0))}
+  .el--star-a,.el--star-b,.el--star-c{animation:none;transform:translateY(var(--ty,0))}
   .rev{opacity:1;filter:none;transition:none}
   .lay--mark.rev,.lay--mark.rev.is-shown{opacity:1;filter:invert(var(--mark-inv));transition:none}
   .el.rev,.el.rev.is-shown{opacity:1;filter:invert(var(--el-inv));transition:none}
