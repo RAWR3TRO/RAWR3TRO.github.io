@@ -569,7 +569,13 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
 .contact{height:100svh;display:grid;place-items:center}
 .contact .stage{
   --cam-w:70cqw;
-  --cam-l:calc(50% - var(--cam-w) * 0.4365);
+  /* Flush to the stage's right edge. The artwork was cropped to its opaque
+     bounds, so its last column carries ink and this lands the camera ON the
+     border rather than near it. The panel then sits at 40.3%-80.7% — right of
+     centre by about 10%, which is the price of the camera touching that edge:
+     the LCD is at 43.65% ACROSS the artwork, so the two cannot both be
+     centred and flush at the same width. */
+  --cam-l:calc(100% - var(--cam-w));
   --cam-t:calc(var(--cam-h) * -0.694);
   --cam-h:calc(var(--cam-w) * 1.11081);
   --lcd-l:calc(var(--cam-l) + var(--cam-w) * 0.1476);
@@ -664,7 +670,7 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
    above the frame. That is the trade for a big centred screen, and 70cqw is
    the largest that still lands the camera's foot at 92.3%, clear of the
    colophon at 93%.
-     camera  x 19.4-89.4%   panel  x 29.7-70.1%  y 23.8-76.0%
+     camera  x 30-100%      panel  x 40.3-80.7%  y 23.8-76.0%
 
    A turning square sweeps its half-DIAGONAL, 0.803 x its width — about 60%
    further than the box suggests — so the star is placed with that radius in
@@ -673,7 +679,7 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
 
      star-c  x -6-5%   sweeps y 0-32%   bleeding off the left
      dice-b  x 5-15%   y 34-52%
-   Both clear the camera's left edge at 19.4%. */
+   Both clear the camera's left edge at 30%. */
 .el--star-c{left:-6%;top:4%;width:11%}
 .el--dice-b{left:5%;top:34%;width:10%}
 
@@ -814,6 +820,10 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
        squarer than a phone: the camera's foot lands at 50% + 0.306 x its
        height, and past this it walks into the colophon. */
     --cam-w:min(120cqw,52cqh);
+    /* Not flush-right here. On a phone the camera is already wider than the
+       viewport, so pinning its right edge drags the panel to 36% and the card
+       ends up off to one side. It stays centred on the panel. */
+    --cam-l:calc(50% - var(--cam-w) * 0.4365);
   }
   /* The star sits over the camera's BOX here but never over its ink: the
      artwork's top-left quadrant is transparent — the lens is top-right, the
