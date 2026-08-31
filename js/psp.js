@@ -774,8 +774,20 @@ function init() {
   let spinY = 0, spinX = 0, spinVY = 0, spinVX = 0;
   /* total travel for the whole gesture, so a swipe can be distinguished from a
      rotate on release — the per-move deltas above are consumed by the spin */
-  let travelX = 0, travelY = 0;
+  let travelX = 0, travelY = 0, downT = 0;
   const SWIPE_MIN = 42;          // px before a drag counts as a swipe
+  /* Distance alone could not tell a swipe from a turn: ANY horizontal drag
+     past 42px was read as a channel change, so on a phone the machine could
+     not be rotated sideways at all — the gesture you would use to turn it was
+     the gesture that changed the channel. Speed separates them. A flick is
+     fast and short; deliberately turning the thing is slow, however far it
+     travels. */
+  const FLICK_MIN = 0.45;        // px per ms
+  /* A finger has no hover state and less room to travel than a mouse, so it
+     gets more rotation per pixel, and the spring lets go more gently. */
+  const ROT_Y  = coarse ? 0.00105 : 0.00042;
+  const ROT_X  = coarse ? 0.00075 : 0.00030;
+  const RETURN = coarse ? 1.5     : 3.2;
 
   function toNDC(e) {
     const r = canvas.getBoundingClientRect();
@@ -795,6 +807,7 @@ function init() {
     toNDC(e);
     dragging = true; dragged = false;
     travelX = travelY = 0;
+    downT = e.timeStamp || performance.now();
     lastX = e.clientX; lastY = e.clientY;
     canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId);
   });
@@ -805,8 +818,8 @@ function init() {
       const dx = e.clientX - lastX, dy = e.clientY - lastY;
       travelX += dx; travelY += dy;
       if (Math.abs(dx) + Math.abs(dy) > 4) dragged = true;
-      spinVY += dx * 0.00042;
-      spinVX += dy * 0.00030;
+      spinVY += dx * ROT_Y;
+      spinVX += dy * ROT_X;
       lastX = e.clientX; lastY = e.clientY;
       return;
     }
@@ -821,8 +834,12 @@ function init() {
   canvas.addEventListener('pointerup', (e) => {
     if (coarse) {
       const horiz = Math.abs(travelX) > Math.abs(travelY);
-      if (dragged && horiz && Math.abs(travelX) > SWIPE_MIN) {
-        /* swipe: drag left to go forward, the way a carousel reads */
+      const dur = Math.max(1, (e.timeStamp || performance.now()) - downT);
+      const flick = Math.abs(travelX) / dur;
+      if (dragged && horiz && Math.abs(travelX) > SWIPE_MIN && flick > FLICK_MIN) {
+        /* swipe: drag left to go forward, the way a carousel reads. Anything
+           slower than a flick fell through to the drag and has already turned
+           the machine. */
         press(travelX < 0 ? 'right' : 'left');
       } else if (!dragged) {
         /* a tap anywhere steps forward — but a tap that landed on a real
@@ -889,6 +906,24 @@ function init() {
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
 
+  /* How much room the frame has, rather than what kind of device it is.
+
+     The old test was `innerWidth < 720`. That is true for a phone held upright
+     and false for the SAME phone turned sideways — an iPhone in landscape is
+     about 844 wide — so rotating the device dropped the machine into the
+     desktop branch and shrank it to two-thirds size at the exact moment the
+     frame got shorter and it most needed the room.
+
+     Measuring the frame instead catches that, and a desktop window dragged
+     short, without having to ask what is holding the pointer. A short-and-wide
+     frame is its own case: height binds there, so the 1.2 that fills a
+     portrait phone would run the machine through the rail along the bottom. */
+  function frameKind() {
+    const w = window.innerWidth, h = window.innerHeight;
+    if (Math.min(w, h) >= 500) return 'roomy';
+    return w > h ? 'short-wide' : 'tall-narrow';
+  }
+
   /* pull the camera to whatever distance makes the machine fill the frame */
   function fitToView() {
     const b = modelBox();
@@ -906,7 +941,7 @@ function init() {
        0.94 to 1.06 barely moved. 1.2 actually overfills the width by about a
        tenth, cropping the outer grips, which is what makes it read as the
        object you came for rather than a picture of one. */
-    const fill = window.innerWidth < 720 ? 1.2 : 0.72;
+    const fill = { roomy: 0.72, 'short-wide': 0.98, 'tall-narrow': 1.2 }[frameKind()];
     const vFov = THREE.MathUtils.degToRad(camera.fov);
     const distH = (size.y / 2) / Math.tan(vFov / 2);
     const distW = (size.x / 2) / (Math.tan(vFov / 2) * camera.aspect);
@@ -927,7 +962,7 @@ function init() {
     composer.setSize(w, h);
     bloom.resolution.set(w, h);
     camera.aspect = w / h;
-    camera.fov = w < 720 ? 42 : 32;
+    camera.fov = frameKind() === 'roomy' ? 32 : 42;
     camera.updateProjectionMatrix();
     if (modelReady) fitToView();
   }
@@ -967,8 +1002,8 @@ function init() {
     spinY += spinVY; spinX += spinVX;
     spinX = Math.max(-0.55, Math.min(0.55, spinX));
     if (!dragging) {
-      spinY += (0 - spinY) * Math.min(1, dt * 3.2);
-      spinX += (0 - spinX) * Math.min(1, dt * 3.2);
+      spinY += (0 - spinY) * Math.min(1, dt * RETURN);
+      spinX += (0 - spinX) * Math.min(1, dt * RETURN);
       if (Math.abs(spinY) < 0.0008) spinY = 0;
       if (Math.abs(spinX) < 0.0008) spinX = 0;
     }

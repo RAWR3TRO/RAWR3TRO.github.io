@@ -439,14 +439,34 @@ a{color:inherit;text-decoration:none}
    position:fixed in this same corner, and at the shared bottom offset the two
    sat exactly on top of each other. The offset clears two stacked buttons, so
    it still holds if the sound toggle comes back. */
-.keys{
-  position:absolute;right:var(--gutter);
-  bottom:calc(clamp(1.6rem,5vh,3.2rem) + 3.6rem);
-  z-index:6;display:flex;align-items:center;gap:.3rem;color:var(--on-dark);
+/* The control legend, down the right-hand side of the machine.
+
+   It carries what a one-line hint could not: that SELECT jumps to About, that
+   the screen itself opens Instagram, that the thing turns under a drag. Right
+   side because that is where the section's empty half is — the PD170 cut-out
+   holds the left — and vertically centred on the machine so it reads as its
+   panel rather than as a footnote.
+
+   Stacked, not tabled. Two columns measured 305px and the machine only leaves
+   about 180px of clear strip on that side at 1280 — a key column beside a
+   text column ran the legend onto the PSP's right grip, where dim VCR type
+   over a white body is unreadable whichever way the z-order falls. One
+   right-aligned column carries the same rows in 160. */
+.ctrls{
+  position:absolute;right:var(--gutter);top:50%;
+  transform:translateY(-50%);
+  z-index:6;margin:0;
+  display:flex;flex-direction:column;align-items:flex-end;gap:.72rem;
+  text-align:right;color:var(--on-dark);
 }
-.keys__say{
-  margin-left:.55rem;font-family:var(--f-vcr);
-  font-size:.72rem;letter-spacing:.18em;opacity:.42;
+.ctrls dt{display:flex;align-items:center;gap:.26rem;flex-wrap:wrap;justify-content:flex-end}
+.ctrls dt i{
+  font-family:var(--f-vcr);font-style:normal;
+  font-size:.58rem;letter-spacing:.13em;opacity:.34;
+}
+.ctrls dd{
+  margin:.24rem 0 0;font-family:var(--f-vcr);
+  font-size:.64rem;letter-spacing:.16em;opacity:.46;white-space:nowrap;
 }
 
 /* The touch hint. Centred just under the machine, above the rail, and only on
@@ -454,24 +474,7 @@ a{color:inherit;text-decoration:none}
    would be noise. It pulses slowly rather than sitting static, because a line
    of dim grey type at the bottom of a dark screen is easy to read straight
    past. */
-/* Nothing above the fold said the machine does anything. The key legend and
-   the tap hint are both control legends — they tell you WHICH input once you
-   already know there is one to give. This is the invitation, and it sits above
-   the PSP where it is read before the thing it describes. */
-.machine__lede{
-  position:absolute;left:50%;transform:translateX(-50%);
-  top:clamp(1.5rem,6.5vh,4rem);
-  z-index:6;margin:0;
-  font-family:var(--f-vcr);font-size:clamp(.62rem,1.1vw,.82rem);
-  letter-spacing:.22em;line-height:1.6;text-align:center;
-  /* 80ch, not the ~56 the string measures: ch is the zero-glyph advance and
-     takes no account of the .22em tracking, which on 55 characters is another
-     160px. The 88vw term is the one that binds on a phone, where it wraps to
-     three lines. */
-  max-width:min(88vw,80ch);
-  color:var(--on-dark);opacity:.55;
-  pointer-events:none;
-}
+
 .machine__hint{
   position:absolute;left:50%;transform:translateX(-50%);
   bottom:calc(clamp(1.6rem,5vh,3.2rem) + 4.6rem);
@@ -723,7 +726,7 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
    not changed at all. That is what pushed the About copy off the bottom of
    the section and put the tape on top of the heading. The cqh term caps it. */
 @media (max-width:820px){
-  .keys{display:none}                 /* the key legend means nothing here */
+  .ctrls{display:none}                /* five rows will not fit beside it */
   .machine__hint{display:block}       /* this is the only cue a phone gets */
 
   /* The bottom-right corner is crowded on a phone: the invert/sound block is
