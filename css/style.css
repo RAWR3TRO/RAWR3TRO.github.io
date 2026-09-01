@@ -460,13 +460,17 @@ a{color:inherit;text-decoration:none}
   text-align:right;color:var(--on-dark);
 }
 .ctrls dt{display:flex;align-items:center;gap:.26rem;flex-wrap:wrap;justify-content:flex-end}
+/* The secondary names — D-PAD, START, SELECT — sat at .58rem and 34% and were
+   the hardest thing on the page to read. They are the part that actually
+   teaches the controls, so they carry weight now, and the meanings under them
+   step up to match. */
 .ctrls dt i{
   font-family:var(--f-vcr);font-style:normal;
-  font-size:.58rem;letter-spacing:.13em;opacity:.34;
+  font-size:.62rem;letter-spacing:.14em;opacity:.46;
 }
 .ctrls dd{
-  margin:.24rem 0 0;font-family:var(--f-vcr);
-  font-size:.64rem;letter-spacing:.16em;opacity:.46;white-space:nowrap;
+  margin:.3rem 0 0;font-family:var(--f-vcr);
+  font-size:.7rem;letter-spacing:.17em;opacity:.62;white-space:nowrap;
 }
 
 /* The touch hint. Centred just under the machine, above the rail, and only on
@@ -740,6 +744,9 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
   }
   .machine__hint{
     bottom:calc(clamp(1.6rem,5vh,3.2rem) + 6.4rem);
+    /* Naming both gestures made the line too long to sit on one row at 375 —
+       it was being cut off at both ends by the nowrap it inherits. */
+    white-space:normal;max-width:84vw;line-height:1.55;text-align:center;
   }
   .osd{font-size:.62rem}
 
@@ -852,6 +859,19 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
      and the hint take on the machine — clears two stacked buttons. */
   .lay--colophon{bottom:calc(clamp(1.6rem,5vh,3.2rem) + 4.2rem)}
 
+}
+
+/* ============ SHORT FRAMES ============
+   A phone on its side. The control legend stands 311px and the fixed
+   invert/sound block owns the bottom-right corner, so in a 390px frame the
+   legend was clipped off the top AND running through those two buttons. It
+   also took the whole right third of the width, which is the width the
+   machine needs most when the frame is this short. So the legend stands down
+   here and the one-line hint takes over, exactly as it does on a phone held
+   upright — the same trade, for the same reason. */
+@media (max-height:520px){
+  .ctrls{display:none}
+  .machine__hint{display:block;bottom:calc(clamp(1.6rem,5vh,3.2rem) + 3.4rem)}
 }
 
 /* ============ REDUCED MOTION ============ */

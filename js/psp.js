@@ -906,49 +906,53 @@ function init() {
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
 
-  /* How much room the frame has, rather than what kind of device it is.
+  /* How much of its binding axis the machine should cover, read as a plain
+     fraction: 0.52 means the model spans just over half the frame.
 
-     The old test was `innerWidth < 720`. That is true for a phone held upright
-     and false for the SAME phone turned sideways — an iPhone in landscape is
-     about 844 wide — so rotating the device dropped the machine into the
-     desktop branch and shrank it to two-thirds size at the exact moment the
-     frame got shorter and it most needed the room.
+     The old form was `fit / fill + size.z`, and that trailing term is why
+     turning `fill` up barely moved anything. size.z is 5.2 for this model,
+     and at 844x390 the whole camera distance was 9.86 — so more than half of
+     it was a constant the fill had no say over, and going 0.98 -> 1.55 bought
+     about a tenth of the frame. Dividing by the target alone makes the number
+     mean what it says: fraction = fit / z, exactly.
 
-     Measuring the frame instead catches that, and a desktop window dragged
-     short, without having to ask what is holding the pointer. A short-and-wide
-     frame is its own case: height binds there, so the 1.2 that fills a
-     portrait phone would run the machine through the rail along the bottom. */
-  function frameKind() {
+     The floor keeps the camera outside the model's own front face, which is
+     the only thing the depth term was ever needed for.
+
+     Landscape is its own case. `innerWidth < 720` used to decide this, which
+     is true for a phone upright and false for the SAME phone on its side — an
+     iPhone in landscape is about 844 wide — so turning the device threw the
+     machine into the desktop branch and shrank it at the moment the frame got
+     shortest. Measuring the frame catches that, and a desktop window dragged
+     short, without asking what is holding the pointer. */
+  function fitTarget() {
     const w = window.innerWidth, h = window.innerHeight;
-    if (Math.min(w, h) >= 500) return 'roomy';
-    return w > h ? 'short-wide' : 'tall-narrow';
+    if (Math.min(w, h) >= 500) return 0.52;   // room to breathe
+    return w > h ? 0.86 : 0.98;               // phone: on its side, upright
   }
 
-  /* pull the camera to whatever distance makes the machine fill the frame */
   function fitToView() {
     const b = modelBox();
     if (!b) return;
     const size = b.getSize(new THREE.Vector3());
-    /* How much of the frame the machine takes.
-
-       A portrait phone fits on WIDTH — distW dominates below, because the
-       aspect divides into it — so the machine was leaving most of the screen
-       empty above and below and reading as a thumbnail of itself.
-
-       Note the `+ size.z` on the next line: it pushes the camera back far
-       enough to clear the model's own depth, and it is added AFTER the fill
-       division, so it quietly eats most of a small fill increase. Going from
-       0.94 to 1.06 barely moved. 1.2 actually overfills the width by about a
-       tenth, cropping the outer grips, which is what makes it read as the
-       object you came for rather than a picture of one. */
-    const fill = { roomy: 0.72, 'short-wide': 0.98, 'tall-narrow': 1.2 }[frameKind()];
     const vFov = THREE.MathUtils.degToRad(camera.fov);
-    const distH = (size.y / 2) / Math.tan(vFov / 2);
-    const distW = (size.x / 2) / (Math.tan(vFov / 2) * camera.aspect);
-    camera.position.set(0, 0, Math.max(distH, distW) / fill + size.z);
+    const tan  = Math.tan(vFov / 2);
+    const distH = (size.y / 2) / tan;
+    const distW = (size.x / 2) / (tan * camera.aspect);
+    const fit = Math.max(distH, distW);
+    camera.position.set(0, 0, Math.max(fit / fitTarget(), size.z / 2 + 1));
     camera.lookAt(0, 0, 0);
     camera.updateProjectionMatrix();
+
+    /* On a short frame the machine covers 86% of the height, and the rail sits
+       along the bottom — dead centre would put the title straight across the
+       lower grip. Lifting it by 7% of its own height is about 6% of the frame,
+       which is the clearance the rail needs. */
+    const w = window.innerWidth, h = window.innerHeight;
+    const shortWide = w > h && Math.min(w, h) < 500;
+    root.position.y = shortWide ? size.y * 0.07 : 0;
   }
+
   function modelBox() {
     if (!modelReady && !model.children.length) return null;
     return new THREE.Box3().setFromObject(model);
@@ -962,7 +966,7 @@ function init() {
     composer.setSize(w, h);
     bloom.resolution.set(w, h);
     camera.aspect = w / h;
-    camera.fov = frameKind() === 'roomy' ? 32 : 42;
+    camera.fov = Math.min(window.innerWidth, window.innerHeight) >= 500 ? 32 : 42;
     camera.updateProjectionMatrix();
     if (modelReady) fitToView();
   }
