@@ -23,22 +23,45 @@
   /* BOOT                                                        */
   /* ---------------------------------------------------------- */
   var boot   = document.getElementById('boot');
-  var fillEl = document.getElementById('bootFill');
   var pctEl  = document.getElementById('bootPct');
 
   var pct = 0, targetPct = 0, bootDone = false;
 
+  /* The bar is a marquee now and carries no value — it just slides. Progress
+     lives in the counter, which is where the dwell at 77 actually shows. */
   function setPct(v) {
     pct = v;
-    if (fillEl) fillEl.style.right = (100 - v) + '%';
     if (pctEl) pctEl.textContent = String(Math.round(v)).padStart(3, '0');
   }
 
-  /* creep toward 96 while the scene builds; finishBoot waits on it */
+  /* Creep toward 96 while the scene builds; finishBoot waits on it.
+
+     Scripted rather than linear. Nothing real loads at a constant rate, and
+     the thing everyone remembers about an XP boot is the bar that sticks —
+     so this one runs quick through the thirties, slows as it climbs, and then
+     sits at 77 for two and a half seconds before finishing. The counter holds
+     at 077 with it, which is what sells the stall.
+
+     Under prefers-reduced-motion it collapses to a single fast ramp: the
+     dwell is theatre, and theatre is the first thing that setting asks you to
+     drop. */
+  var CRAWL = reduce
+    ? [{ to: 96, step: 8, every: 30 }]
+    : [{ to: 34, step: 5, every: 60 },
+       { to: 62, step: 4, every: 80 },
+       { to: 77, step: 2, every: 110 },
+       { hold: 2400 },
+       { to: 90, step: 2, every: 120 },
+       { to: 96, step: 2, every: 90 }];
+
+  var leg = 0;
   function crawl() {
-    targetPct = Math.min(96, targetPct + 6);
-    if (targetPct < 96) setTimeout(crawl, reduce ? 30 : 90);
-    else finishBoot();
+    if (leg >= CRAWL.length) { finishBoot(); return; }
+    var s = CRAWL[leg];
+    if (s.hold) { leg++; setTimeout(crawl, s.hold); return; }
+    if (targetPct >= s.to) { leg++; crawl(); return; }
+    targetPct = Math.min(s.to, targetPct + s.step);
+    setTimeout(crawl, s.every);
   }
 
   function tickPct() {

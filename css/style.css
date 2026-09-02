@@ -168,14 +168,44 @@ a{color:inherit;text-decoration:none}
 .boot__bars{display:flex;width:min(300px,58vw);height:34px}
 .boot__bars i{flex:1;background:var(--c);opacity:.85}
 .boot__img{width:min(300px,58vw);filter:invert(var(--mark-inv))}
-/* The dim track is a pseudo-element rather than `opacity` on .boot__bar —
-   opacity on the parent would fade the FILL along with the track and the
-   counter would climb against an invisible bar. */
-.boot__bar{width:min(300px,58vw);height:2px;position:relative;overflow:hidden}
-.boot__bar::before{content:'';position:absolute;inset:0;background:currentColor;opacity:.2}
-.boot__bar span{position:absolute;inset:0 100% 0 0;background:currentColor;transition:right .16s linear}
+/* The XP boot marquee: three blocks travelling across a sunken trough on a
+   loop, rather than a fill that grows.
+
+   It is indeterminate by nature, so the percentage lives in the counter
+   underneath — which is exactly the division of labour the real one has. The
+   bar says "working", the number says how far. It is also what lets the dwell
+   at 77 read: the blocks keep sliding while the count sits still, which is the
+   precise feeling of an XP machine thinking.
+
+   The travel is keyed to `left:100%` rather than a fixed pixel end, because
+   this trough is min(300px,58vw) to line up with the SMPTE bars and the
+   wordmark above it — a hard-coded end would only have landed at one width. */
+.boot__bar{
+  width:min(300px,58vw);height:24px;box-sizing:border-box;
+  position:relative;overflow:hidden;
+  background:#0a0a0a;
+  border:2px solid #999;
+  border-radius:4px;
+  box-shadow:inset 2px 2px 5px #000, 0 1px 0 #333;
+}
+/* top/bottom rather than height:100% — an absolutely positioned child is laid
+   against the padding box and would ignore any padding on the trough. */
+.boot__bar span{
+  position:absolute;left:-34px;top:2px;bottom:2px;
+  display:flex;gap:2px;width:34px;
+  animation:xp-slide 2.5s linear infinite;
+}
+.boot__bar span i{
+  width:10px;border-radius:1px;
+  background:linear-gradient(to bottom,
+    #285ed3 0%, #3b8dfa 25%, #60b4ff 50%, #3b8dfa 75%, #0031a0 100%);
+  box-shadow:inset 1px 1px 1px rgba(255,255,255,.4);
+}
+@keyframes xp-slide{from{left:-34px}to{left:100%}}
+
 .boot__meta{
-  width:min(300px,58vw);display:flex;justify-content:space-between;align-items:baseline;
+  width:min(300px,58vw);margin-top:-.4rem;
+  display:flex;justify-content:space-between;align-items:baseline;
   font-family:var(--f-vcr);font-size:.8rem;letter-spacing:.16em;opacity:.6;
 }
 .boot__pct{font-family:var(--f-seg);letter-spacing:.06em}
@@ -448,28 +478,44 @@ a{color:inherit;text-decoration:none}
    panel rather than as a footnote.
 
    Stacked, not tabled. Two columns measured 305px and the machine only leaves
-   about 180px of clear strip on that side at 1280 — a key column beside a
-   text column ran the legend onto the PSP's right grip, where dim VCR type
-   over a white body is unreadable whichever way the z-order falls. One
-   right-aligned column carries the same rows in 160. */
+   about 180px of clear strip on that side at 1280 — a key column beside a text
+   column ran the legend onto the PSP's right grip, where dim VCR type over a
+   white body is unreadable whichever way the z-order falls.
+
+   The spacing is the whole trick. A uniform `gap` put exactly as much air
+   between a row of keys and its meaning as between one entry and the next, so
+   ten right-aligned lines of varying width read as one zigzag rather than as
+   five pairs. Margins instead: tight under the keys, wide between entries, so
+   each pair binds. The rule and the CONTROLS label give the ragged left edge
+   something to sit against. */
 .ctrls{
   position:absolute;right:var(--gutter);top:50%;
   transform:translateY(-50%);
   z-index:6;margin:0;
-  display:flex;flex-direction:column;align-items:flex-end;gap:.72rem;
   text-align:right;color:var(--on-dark);
+  border-right:1px solid currentColor;
+  padding-right:.85rem;
+  border-color:color-mix(in srgb, currentColor 22%, transparent);
 }
-.ctrls dt{display:flex;align-items:center;gap:.26rem;flex-wrap:wrap;justify-content:flex-end}
+.ctrls__h{
+  margin:0 0 1rem;font-family:var(--f-vcr);
+  font-size:.6rem;letter-spacing:.34em;opacity:.32;
+}
+.ctrls dl{margin:0}
+.ctrls dt{
+  display:flex;align-items:center;gap:.3rem;justify-content:flex-end;
+  margin-top:1.15rem;
+}
+.ctrls dt:first-of-type{margin-top:0}
 /* The secondary names — D-PAD, START, SELECT — sat at .58rem and 34% and were
    the hardest thing on the page to read. They are the part that actually
-   teaches the controls, so they carry weight now, and the meanings under them
-   step up to match. */
+   teaches the controls, so they carry weight now. */
 .ctrls dt i{
   font-family:var(--f-vcr);font-style:normal;
   font-size:.62rem;letter-spacing:.14em;opacity:.46;
 }
 .ctrls dd{
-  margin:.3rem 0 0;font-family:var(--f-vcr);
+  margin:.24rem 0 0;font-family:var(--f-vcr);
   font-size:.7rem;letter-spacing:.17em;opacity:.62;white-space:nowrap;
 }
 
