@@ -25,7 +25,7 @@
   var boot   = document.getElementById('boot');
   var pctEl  = document.getElementById('bootPct');
   var fillEl = document.getElementById('bootFill');
-  var barEl  = fillEl && fillEl.parentNode;
+  var barEl  = document.getElementById('bootBar');
 
   var pct = 0, targetPct = 0, bootDone = false;
 
@@ -37,11 +37,27 @@
      after it. */
   var BLOCK = 9, GAP = 2, PITCH = BLOCK + GAP, PAD = 3;
 
+  /* `shown` is what the BAR is at; `pct` is what the counter says. They are
+     the same number once the bar is stacking, but the bar starts from zero at
+     the handover and sweeps up to meet the counter, so the blocks appear to
+     fill in rather than snapping to 77 all at once. That sweep is what makes
+     it read as one bar changing its mind instead of two bars swapping. */
+  var shown = 0, stacking = false;
+
+  function stack() {
+    if (stacking) return;
+    stacking = true;
+    shown = 0;
+    if (barEl) { barEl.classList.remove('is-sliding'); barEl.classList.add('is-stacking'); }
+  }
+
   function setPct(v) {
     pct = v;
     if (fillEl && barEl) {
+      /* quantised to whole blocks: a block is either down or it is not, so no
+         half block ever creeps in at the right-hand end */
       var inner = barEl.clientWidth - PAD * 2;
-      var n = Math.floor(((inner + GAP) * (v / 100)) / PITCH);
+      var n = Math.floor(((inner + GAP) * (shown / 100)) / PITCH);
       fillEl.style.width = Math.max(0, n * PITCH - GAP) + 'px';
     }
     if (pctEl) pctEl.textContent = String(Math.round(v)).padStart(3, '0');
@@ -71,7 +87,9 @@
   function crawl() {
     if (leg >= CRAWL.length) { finishBoot(); return; }
     var s = CRAWL[leg];
-    if (s.hold) { leg++; setTimeout(crawl, s.hold); return; }
+    /* The stall is the last moment the outcome is unknown, so the marquee
+       runs through it and the blocks take over the instant it breaks. */
+    if (s.hold) { leg++; setTimeout(function () { stack(); crawl(); }, s.hold); return; }
     if (targetPct >= s.to) { leg++; crawl(); return; }
     targetPct = Math.min(s.to, targetPct + s.step);
     setTimeout(crawl, s.every);
@@ -79,6 +97,7 @@
 
   function tickPct() {
     if (bootDone) return;
+    if (stacking) shown += (pct - shown) * 0.12;   // ~400ms to catch up
     setPct(pct + (targetPct - pct) * 0.14);
     requestAnimationFrame(tickPct);
   }
@@ -100,6 +119,7 @@
     setTimeout(release, 9000);   // never trap anyone behind a slow CDN
   }
 
+  if (reduce) stack();          /* no stall to pivot on, so never slide */
   requestAnimationFrame(tickPct);
   setTimeout(crawl, reduce ? 0 : 200);
 
