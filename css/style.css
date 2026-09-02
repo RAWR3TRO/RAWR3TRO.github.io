@@ -31,6 +31,10 @@
 @font-face{font-family:'Silk';src:url('../assets/fonts/silkscreen.ttf') format('truetype');font-weight:400;font-display:swap}
 @font-face{font-family:'Silk';src:url('../assets/fonts/silkscreen-bold.ttf') format('truetype');font-weight:700;font-display:swap}
 @font-face{font-family:'Press';src:url('../assets/fonts/pressstart.ttf') format('truetype');font-weight:400;font-display:swap}
+/* Pixelify Sans, OFL — licence alongside it in assets/fonts. A variable TTF,
+   so one file covers the weights; declaring the range lets bold resolve
+   instead of being synthesised. */
+@font-face{font-family:'Pixelify';src:url('../assets/fonts/pixelifysans.ttf') format('truetype');font-weight:400 700;font-display:swap}
 @font-face{font-family:'DSEG7';src:url('../assets/fonts/dseg7.woff2') format('woff2'),url('../assets/fonts/dseg7.woff') format('woff');font-weight:700;font-display:swap}
 
 :root{
@@ -58,16 +62,19 @@
   --el-inv:1;
   --el-blend:screen;
 
-  /* The XP dialog face is Tahoma with the antialiasing off — real proportional
-     letterforms with hard pixel edges, which is a different thing from a
-     blocky arcade face. Silkscreen was tried here and is the wrong shape: it
-     is drawn on a square grid, so it reads as an 8-bit game rather than as a
-     Windows dialog. The pixelation comes from font-smoothing:none on body,
-     not from the face. Verdana leads the fallbacks because Tahoma is not on
-     macOS — same designer, same era, closest metric match. */
+  /* Pixelify Sans, a real bitmap face, because switching smoothing off can
+     only alias the edges a screen actually has — and at 2x DPI those edges are
+     half-size, so Tahoma stayed crisp rather than chunky however the smoothing
+     was set. The pixels have to be drawn INTO the letterforms to read at this
+     density.
+
+     Pixelify over Silkscreen, which is also on hand: Silkscreen is drawn on a
+     square grid and renders lowercase as small caps, so it reads as an arcade
+     cabinet. Pixelify is proportional and mixed-case, which is the shape of
+     the XP dialog this is chasing. Tahoma stays as the fallback. */
   --f-xp:Tahoma,Verdana,Geneva,'DejaVu Sans',sans-serif;
-  --f-vcr:var(--f-xp);
-  --f-body:var(--f-xp);
+  --f-vcr:'Pixelify',var(--f-xp);
+  --f-body:'Pixelify',var(--f-xp);
   --f-pix:'Silk','Press',ui-monospace,monospace;
   --f-seg:'DSEG7','VCR',ui-monospace,monospace;
 
