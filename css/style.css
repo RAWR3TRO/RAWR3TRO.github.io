@@ -58,8 +58,12 @@
   --el-inv:1;
   --el-blend:screen;
 
-  --f-vcr:'VCR',ui-monospace,'Courier New',monospace;
-  --f-body:'Share',ui-monospace,'Courier New',monospace;
+  /* Tahoma is the Windows XP UI face. It is not installed on macOS, so
+     Verdana leads the fallbacks — same designer, same era, and the closest
+     widely present metric match. */
+  --f-xp:Tahoma,Verdana,Geneva,'DejaVu Sans',sans-serif;
+  --f-vcr:var(--f-xp);
+  --f-body:var(--f-xp);
   --f-pix:'Silk','Press',ui-monospace,monospace;
   --f-seg:'DSEG7','VCR',ui-monospace,monospace;
 
@@ -168,18 +172,18 @@ a{color:inherit;text-decoration:none}
 .boot__bars{display:flex;width:min(300px,58vw);height:34px}
 .boot__bars i{flex:1;background:var(--c);opacity:.85}
 .boot__img{width:min(300px,58vw);filter:invert(var(--mark-inv))}
-/* The XP boot marquee: three blocks travelling across a sunken trough on a
-   loop, rather than a fill that grows.
+/* The XP progress bar: blocks STACK up left to right rather than travelling.
 
-   It is indeterminate by nature, so the percentage lives in the counter
-   underneath — which is exactly the division of labour the real one has. The
-   bar says "working", the number says how far. It is also what lets the dwell
-   at 77 read: the blocks keep sliding while the count sits still, which is the
-   precise feeling of an XP machine thinking.
+   The blocks are a repeating gradient on the FILL, not on the track, so they
+   are anchored to the fill's left edge — as it widens, whole new blocks appear
+   at the right and the ones already down never shift. A gradient on the track
+   would have looked wrong the moment it moved: the blocks would have slid
+   under a widening mask instead of stacking.
 
-   The travel is keyed to `left:100%` rather than a fixed pixel end, because
-   this trough is min(300px,58vw) to line up with the SMPTE bars and the
-   wordmark above it — a hard-coded end would only have landed at one width. */
+   The width is quantised to whole blocks in setPct and there is no transition
+   on it, so each block appears at once rather than growing into place. That
+   snap is the whole effect — a smooth fill reads as a slider, a stepped one
+   reads as a machine counting something off. */
 .boot__bar{
   width:min(300px,58vw);height:24px;box-sizing:border-box;
   position:relative;overflow:hidden;
@@ -191,17 +195,10 @@ a{color:inherit;text-decoration:none}
 /* top/bottom rather than height:100% — an absolutely positioned child is laid
    against the padding box and would ignore any padding on the trough. */
 .boot__bar span{
-  position:absolute;left:-34px;top:2px;bottom:2px;
-  display:flex;gap:2px;width:34px;
-  animation:xp-slide 2.5s linear infinite;
+  position:absolute;left:3px;top:3px;bottom:3px;width:0;
+  background:repeating-linear-gradient(90deg,
+    var(--on-dark) 0 9px, rgba(0,0,0,0) 9px 11px);
 }
-.boot__bar span i{
-  width:10px;border-radius:1px;
-  background:linear-gradient(to bottom,
-    #285ed3 0%, #3b8dfa 25%, #60b4ff 50%, #3b8dfa 75%, #0031a0 100%);
-  box-shadow:inset 1px 1px 1px rgba(255,255,255,.4);
-}
-@keyframes xp-slide{from{left:-34px}to{left:100%}}
 
 .boot__meta{
   width:min(300px,58vw);margin-top:-.4rem;
@@ -628,7 +625,13 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
      centre by about 10%, which is the price of the camera touching that edge:
      the LCD is at 43.65% ACROSS the artwork, so the two cannot both be
      centred and flush at the same width. */
-  --cam-l:calc(100% - var(--cam-w));
+  /* Always hard against the right edge. The max() is what keeps that true at
+     every width: once the camera is WIDER than the stage — which it is on a
+     phone — `100% - width` goes negative enough to drag the panel's left edge
+     off screen, so below that point it falls back to centring the panel and
+     the camera simply bleeds off both sides. Either way its right edge is at
+     or past the border, which is the thing being asked for. */
+  --cam-l:max(calc(100% - var(--cam-w)), calc(50% - var(--cam-w) * 0.4365));
   --cam-t:calc(var(--cam-h) * -0.694);
   --cam-h:calc(var(--cam-w) * 1.11081);
   --lcd-l:calc(var(--cam-l) + var(--cam-w) * 0.1476);
@@ -871,15 +874,12 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
        the top. The 46cqh term caps it by HEIGHT. It does not bind on a phone
        — at 375x812 it is 373px against 98cqw's 367px — so the portrait
        layout is untouched and only the squarer screens are pulled in. */
-    /* Only the size changes here — --cam-l and --cam-t are inherited from
-       above and keep centring the panel. The 52cqh term binds on anything
-       squarer than a phone: the camera's foot lands at 50% + 0.306 x its
-       height, and past this it walks into the colophon. */
-    --cam-w:min(120cqw,52cqh);
-    /* Not flush-right here. On a phone the camera is already wider than the
-       viewport, so pinning its right edge drags the panel to 36% and the card
-       ends up off to one side. It stays centred on the panel. */
-    --cam-l:calc(50% - var(--cam-w) * 0.4365);
+    /* Only the size changes here — --cam-l is inherited and keeps the camera
+       on the right edge, falling back to a centred panel once the camera is
+       wider than the stage. The height term binds on anything squarer than a
+       phone: the camera's foot lands at 50% + 0.306 x its height, and past
+       this it walks into the colophon. */
+    --cam-w:min(120cqw,105cqh);
   }
   /* The star sits over the camera's BOX here but never over its ink: the
      artwork's top-left quadrant is transparent — the lens is top-right, the

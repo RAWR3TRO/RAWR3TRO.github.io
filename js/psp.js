@@ -906,51 +906,85 @@ function init() {
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
 
-  /* How much of its binding axis the machine should cover, read as a plain
-     fraction: 0.52 means the model spans just over half the frame.
+  /* How much of each AXIS the machine may cover, read as a plain fraction.
 
-     The old form was `fit / fill + size.z`, and that trailing term is why
-     turning `fill` up barely moved anything. size.z is 5.2 for this model,
-     and at 844x390 the whole camera distance was 9.86 — so more than half of
-     it was a constant the fill had no say over, and going 0.98 -> 1.55 bought
-     about a tenth of the frame. Dividing by the target alone makes the number
-     mean what it says: fraction = fit / z, exactly.
+     Per-axis, not one number for the tighter axis. The old form asked
+     `Math.min(w, h) >= 500` and then applied a single target — so a tall
+     narrow window, a browser docked to half a screen at 1000x1650, counted as
+     "roomy" and the machine sat at 52% of the width, which was already the
+     scarce axis. All that spare height went unused and it read as a thumbnail.
 
-     The floor keeps the camera outside the model's own front face, which is
-     the only thing the depth term was ever needed for.
+     Reading the axes separately fixes that without buckets: a narrow frame
+     gives the machine more of its width, a short one more of its height, and
+     whichever constraint binds is the one that sets the distance.
 
-     Landscape is its own case. `innerWidth < 720` used to decide this, which
-     is true for a phone upright and false for the SAME phone on its side — an
-     iPhone in landscape is about 844 wide — so turning the device threw the
-     machine into the desktop branch and shrank it at the moment the frame got
-     shortest. Measuring the frame catches that, and a desktop window dragged
-     short, without asking what is holding the pointer. */
-  function fitTarget() {
-    const w = window.innerWidth, h = window.innerHeight;
-    if (Math.min(w, h) >= 500) return 0.52;   // room to breathe
-    return w > h ? 0.86 : 0.98;               // phone: on its side, upright
+     The form used to be `fit / fill + size.z`, and that trailing term is why
+     turning `fill` up barely moved anything — size.z is 5.2 for this model, so
+     at 844x390 more than half the camera distance was a constant the fill had
+     no say over. Dividing alone makes the numbers mean what they say:
+     coverage = dist / z, exactly. The floor keeps the camera outside the
+     model's own front face, which is all the depth term was ever for. */
+  function coverage(px) {
+    var t = Math.min(1, Math.max(0, (1200 - px) / 840));
+    return 0.55 + t * 0.40;                 // 0.55 roomy -> 0.95 tight
+  }
+  /* Size alone was not enough. A 1000x1650 side tab and a 1280x720 desktop
+     differ by 280px of width but by a factor of three in SHAPE, and shape is
+     what leaves the machine stranded: when the frame is far taller than the
+     machine, width is the scarce axis and all that height goes spare, so the
+     width may be used much harder. This term reads that skew directly and
+     stays at zero whenever the frame already matches the machine, which is
+     why the ordinary 16:9 desktop does not move. */
+  function skew(a, b) {
+    return Math.min(1, Math.max(0, (a / b - 1) / 1.5));
+  }
+
+  /* The strip the control legend occupies, so the machine is fitted and
+     centred in the room it ACTUALLY has. Without this it is fitted to the whole
+     canvas and simply drawn underneath the legend — which only stayed out of
+     sight while the machine was small enough to leave that corner alone. */
+  function reservedRight() {
+    const el = document.querySelector('.ctrls');
+    if (!el || getComputedStyle(el).display === 'none') return 0;
+    const sr = stage.getBoundingClientRect(), r = el.getBoundingClientRect();
+    return Math.max(0, Math.min(sr.width * 0.4, sr.right - r.left + 12));
   }
 
   function fitToView() {
     const b = modelBox();
     if (!b) return;
     const size = b.getSize(new THREE.Vector3());
+    const w = stage.clientWidth, h = stage.clientHeight;
+    if (!w || !h) return;
+    const reserve = reservedRight();
+    const usableW = Math.max(80, w - reserve);
     const vFov = THREE.MathUtils.degToRad(camera.fov);
     const tan  = Math.tan(vFov / 2);
+    const fa = usableW / h;                  // fit against the free strip
     const distH = (size.y / 2) / tan;
-    const distW = (size.x / 2) / (tan * camera.aspect);
-    const fit = Math.max(distH, distW);
-    camera.position.set(0, 0, Math.max(fit / fitTarget(), size.z / 2 + 1));
+    const distW = (size.x / 2) / (tan * fa);
+    const ma = size.x / size.y;              // the machine's own proportions
+    /* coverage() reads the FULL frame, not the strip. How much room the page
+       has is a property of the window; the strip only decides where the
+       machine may be drawn. Feeding it the strip counted the legend twice —
+       once by narrowing the space and again by loosening the cap because the
+       space had narrowed — and the machine grew off the left edge at 1280. */
+    const covW = Math.min(0.98, coverage(w) + skew(ma, fa) * 0.25);
+    const covH = Math.min(0.98, coverage(h) + skew(fa, ma) * 0.25);
+    const z = Math.max(distW / covW, distH / covH);
+    camera.position.set(0, 0, Math.max(z, size.z / 2 + 1));
     camera.lookAt(0, 0, 0);
     camera.updateProjectionMatrix();
 
-    /* On a short frame the machine covers 86% of the height, and the rail sits
+    /* Slide it into the middle of that free strip rather than the middle of
+       the canvas, by half of whatever the legend took. */
+    root.position.x = -(reserve / 2) * ((2 * camera.position.z * tan) / h);
+
+    /* On a short frame the machine covers most of the height and the rail sits
        along the bottom — dead centre would put the title straight across the
        lower grip. Lifting it by 7% of its own height is about 6% of the frame,
        which is the clearance the rail needs. */
-    const w = window.innerWidth, h = window.innerHeight;
-    const shortWide = w > h && Math.min(w, h) < 500;
-    root.position.y = shortWide ? size.y * 0.07 : 0;
+    root.position.y = (w > h && Math.min(w, h) < 500) ? size.y * 0.07 : 0;
   }
 
   function modelBox() {

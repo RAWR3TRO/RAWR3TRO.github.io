@@ -24,13 +24,26 @@
   /* ---------------------------------------------------------- */
   var boot   = document.getElementById('boot');
   var pctEl  = document.getElementById('bootPct');
+  var fillEl = document.getElementById('bootFill');
+  var barEl  = fillEl && fillEl.parentNode;
 
   var pct = 0, targetPct = 0, bootDone = false;
 
-  /* The bar is a marquee now and carries no value — it just slides. Progress
-     lives in the counter, which is where the dwell at 77 actually shows. */
+  /* The fill is quantised to whole blocks so it STACKS rather than slides.
+     Rounding down to the block pitch means a block is either down or it is
+     not — no half block ever creeps in at the right-hand end, which is what
+     would make it read as a smooth bar wearing block clothing. 9px block,
+     2px gap, and the run is one gap short because the last block has nothing
+     after it. */
+  var BLOCK = 9, GAP = 2, PITCH = BLOCK + GAP, PAD = 3;
+
   function setPct(v) {
     pct = v;
+    if (fillEl && barEl) {
+      var inner = barEl.clientWidth - PAD * 2;
+      var n = Math.floor(((inner + GAP) * (v / 100)) / PITCH);
+      fillEl.style.width = Math.max(0, n * PITCH - GAP) + 'px';
+    }
     if (pctEl) pctEl.textContent = String(Math.round(v)).padStart(3, '0');
   }
 
