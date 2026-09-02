@@ -108,12 +108,17 @@ html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{
   margin:0;background:var(--dark);color:var(--on-dark);
   font-family:var(--f-body);line-height:1.5;
-  /* A bitmap face antialiased is a bitmap face with the pixels sanded off.
-     Turning smoothing off is what actually makes it read as pixel type rather
-     than as a small blurry sans. */
+  overflow-x:hidden;
+  /* Aliased on purpose. This is what makes Tahoma read as XP dialog type
+     rather than as a small smooth sans — the letterforms are already right,
+     the smoothing is what was sanding the pixels off them.
+
+     There were TWO -webkit-font-smoothing declarations on this rule for a
+     while: `none` here and an older `antialiased` further down, which won on
+     source order and quietly cancelled it. That is why the type looked
+     untouched through several passes at it. */
   -webkit-font-smoothing:none;
-  -moz-osx-font-smoothing:grayscale;
-  overflow-x:hidden;-webkit-font-smoothing:antialiased;
+  font-smooth:never;
 }
 body.is-booting{overflow:hidden}
 img{max-width:100%;display:block}
@@ -204,23 +209,35 @@ a{color:inherit;text-decoration:none}
 }
 /* top/bottom rather than height:100% — an absolutely positioned child is laid
    against the padding box and would ignore any padding on the trough. */
+/* The strip is the full width of the trough and the three blocks ride at its
+   left edge, so the travel can be a TRANSFORM: translateX(100%) is one trough
+   width, which is exactly the distance from off-the-left to off-the-right.
+
+   It animated `left` before, from -34px to 100%. That is a layout property, so
+   every step re-laid the bar out, and it is the first thing a browser throttles
+   when it is not sure the frame matters — measured mid-boot it advanced two
+   steps and then sat at -1px, which is the "bar isn't working" everyone saw.
+   A transform is composited and cannot stall that way.
+
+   steps(), not linear: the real one jumps a block at a time, and a smooth
+   60fps sweep is the single thing that gives away a modern re-creation. 16
+   jumps across 1.6s is 10fps and about 19px a jump on a 300px trough — chopped
+   hard, but crossing quickly enough to read as moving. */
 .boot__slide{
-  position:absolute;left:-34px;top:3px;bottom:3px;
-  display:flex;gap:2px;width:34px;
-  /* steps(), not linear. The real one does not glide — it jumps a block at a
-     time, and a smooth 60fps sweep is the single thing that gives away a
-     modern re-creation. 20 jumps across 2.5s is 8fps, about 17px a jump on a
-     300px trough. */
-  animation:xp-slide 2.5s steps(20,end) infinite;
+  position:absolute;left:3px;right:3px;top:3px;bottom:3px;
+  display:flex;gap:2px;
+  transform:translateX(-34px);
+  animation:xp-slide 1.6s steps(16,end) infinite;
+  will-change:transform;
   transition:opacity .22s linear;
 }
 .boot__slide i{
-  width:10px;border-radius:1px;
+  width:10px;flex:none;border-radius:1px;
   background:linear-gradient(to bottom,
     #285ed3 0%, #3b8dfa 25%, #60b4ff 50%, #3b8dfa 75%, #0031a0 100%);
   box-shadow:inset 1px 1px 1px rgba(255,255,255,.4);
 }
-@keyframes xp-slide{from{left:-34px}to{left:100%}}
+@keyframes xp-slide{from{transform:translateX(-34px)}to{transform:translateX(100%)}}
 /* The handover. The marquee fades over 0.22s while the blocks sweep in from
    nothing to the current count — see the `shown` value in main.js, which is
    what makes it read as one bar changing its mind rather than two bars
