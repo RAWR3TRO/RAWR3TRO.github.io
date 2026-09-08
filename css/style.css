@@ -31,6 +31,12 @@
 @font-face{font-family:'Silk';src:url('../assets/fonts/silkscreen.ttf') format('truetype');font-weight:400;font-display:swap}
 @font-face{font-family:'Silk';src:url('../assets/fonts/silkscreen-bold.ttf') format('truetype');font-weight:700;font-display:swap}
 @font-face{font-family:'Press';src:url('../assets/fonts/pressstart.ttf') format('truetype');font-weight:400;font-display:swap}
+/* Pixeloid Sans, OFL — GGBotNet, out of the brand kit; licence alongside it in
+   assets/fonts. woff2 rather than the ttf that ships beside it: same outlines,
+   a fifth of the bytes, and it is the one format every browser here supports.
+   Real bold, so headings are not synthesised into a smear. */
+@font-face{font-family:'Pixeloid';src:url('../assets/fonts/pixeloidsans.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Pixeloid';src:url('../assets/fonts/pixeloidsans-bold.woff2') format('woff2');font-weight:700;font-display:swap}
 /* Jersey 15, OFL — licence alongside it in assets/fonts. */
 @font-face{font-family:'Jersey';src:url('../assets/fonts/jersey15.ttf') format('truetype');font-weight:400;font-display:swap}
 @font-face{font-family:'DSEG7';src:url('../assets/fonts/dseg7.woff2') format('woff2'),url('../assets/fonts/dseg7.woff') format('woff');font-weight:700;font-display:swap}
@@ -76,7 +82,7 @@
      not something to put on a commercial site without asking. */
   --f-xp:Tahoma,Verdana,Geneva,'DejaVu Sans',sans-serif;
   --f-vcr:'Jersey',var(--f-xp);
-  --f-body:'Jersey',var(--f-xp);
+  --f-body:'Pixeloid',var(--f-xp);
   --f-pix:'Silk','Press',ui-monospace,monospace;
   --f-seg:'DSEG7','VCR',ui-monospace,monospace;
 
