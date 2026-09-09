@@ -520,9 +520,10 @@ a{color:inherit;text-decoration:none}
 .rail__open{
   margin-left:.8rem;align-self:center;width:34px;height:34px;flex:none;
   display:grid;place-items:center;border:1px solid currentColor;
-  font-family:var(--f-vcr);font-size:.95rem;line-height:1;opacity:.75;
+  font-size:.95rem;line-height:1;opacity:.75;
   transition:background .25s,color .25s,transform .4s var(--ease),opacity .25s;
 }
+.rail__open .arw{width:1.05em;height:1.05em;opacity:1}
 .rail__open:hover{background:var(--on-dark);color:var(--dark);opacity:1;transform:translate(2px,-2px)}
 .rail.is-swap b{animation:flick .28s steps(2) both}
 @keyframes flick{0%{opacity:0}50%,100%{opacity:1}}
@@ -769,15 +770,32 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
 /* Stacked rather than side by side: across a panel this narrow the two would
    have to shrink to about 10px on a phone to sit in a row. */
 .lcd__links{display:flex;flex-direction:column;gap:6cqh;align-items:center}
+/* Each link is now a ROW — the label/value stack on the left, the arrow at the
+   right — so the arrow marks the whole entry as somewhere you can go rather
+   than sitting under it like a third line of the address. */
 .lcd__links a{
   font-family:var(--f-vcr);font-size:4.4cqw;letter-spacing:.2em;color:#fff;
   /* Explicit, because the inherited 1.6 adds 60% to each of the four lines in
      this block and that is most of the panel's height. On a phone it pushed
      the email address out through the bottom of the screen. */
   line-height:1;
-  display:flex;flex-direction:column;gap:.5em;position:relative;padding-bottom:.45em;
+  display:flex;align-items:center;gap:.7em;position:relative;padding-bottom:.45em;
 }
+.lcd__links a > span{display:flex;flex-direction:column;gap:.5em}
 .lcd__links a i{font-family:var(--f-body);font-style:normal;font-size:.78em;letter-spacing:.05em;opacity:.68}
+/* Drawn, not typed. The character it replaced was U+2197, and a bare
+   codepoint in that block is emoji-presentation by default on Apple platforms
+   — so the rail's link marker rendered as a full-colour emoji arrow next to
+   monochrome pixel type. A variation selector can ask for text presentation
+   but is honoured inconsistently; a path cannot be overridden at all, takes
+   currentColor, and stays on the pixel grid at any size. */
+.arw{
+  width:1em;height:1em;flex:none;
+  fill:none;stroke:currentColor;stroke-width:1;
+  shape-rendering:crispEdges;
+  opacity:.72;
+}
+.lcd__links a:hover .arw{opacity:1}
 .lcd__links a::after{content:'';position:absolute;left:0;right:100%;bottom:0;height:1px;background:currentColor;transition:right .4s var(--ease)}
 .lcd__links a:hover::after{right:0}
 
