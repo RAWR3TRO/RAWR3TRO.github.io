@@ -523,7 +523,7 @@ a{color:inherit;text-decoration:none}
   font-size:.95rem;line-height:1;opacity:.75;
   transition:background .25s,color .25s,transform .4s var(--ease),opacity .25s;
 }
-.rail__open .arw{width:1.05em;height:1.05em;opacity:1}
+.rail__open .arw{width:14px;height:14px}
 .rail__open:hover{background:var(--on-dark);color:var(--dark);opacity:1;transform:translate(2px,-2px)}
 .rail.is-swap b{animation:flick .28s steps(2) both}
 @keyframes flick{0%{opacity:0}50%,100%{opacity:1}}
@@ -789,11 +789,26 @@ kbd{font-family:var(--f-vcr);font-size:.72rem;letter-spacing:.08em;border:1px so
    monochrome pixel type. A variation selector can ask for text presentation
    but is honoured inconsistently; a path cannot be overridden at all, takes
    currentColor, and stays on the pixel grid at any size. */
+/* Built from 1x1 cells on a 7x7 grid rather than stroked, so it is made of the
+   same square pixels as the type beside it and the blocks in the loading bar.
+   A stroked diagonal renders as a smooth tapering line whatever the
+   shape-rendering, which is why it read as a stock UI icon dropped into a
+   pixel layout. */
 .arw{
   width:1em;height:1em;flex:none;
-  fill:none;stroke:currentColor;stroke-width:1;
+  fill:currentColor;stroke:none;
   shape-rendering:crispEdges;
-  opacity:.72;
+}
+/* Boxed, like the rail's. The site already had one way of saying "this opens
+   somewhere" — a bordered square with the arrow inside it — and two bare marks
+   floating beside the addresses were a second, weaker way of saying the same
+   thing. One component, used in both places. */
+.lcd__links a .arw{
+  box-sizing:border-box;
+  width:2em;height:2em;padding:.5em;
+  border:1px solid currentColor;
+  opacity:.55;
+  transition:opacity .25s var(--ease);
 }
 .lcd__links a:hover .arw{opacity:1}
 .lcd__links a::after{content:'';position:absolute;left:0;right:100%;bottom:0;height:1px;background:currentColor;transition:right .4s var(--ease)}
