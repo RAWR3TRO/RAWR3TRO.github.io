@@ -15,13 +15,13 @@
    ============================================================ */
 window.RR_WORKS = [
   {
-    id: 'rwb',
-    title: 'RWB',
-    sub: 'Rauh-Welt widebody, built in the open',
-    meta: 'MEET · 2026',
-    img: 'assets/works/rwb.jpg',
+    id: 'snowstripperz',
+    title: 'SNOWSTRIPPERZ',
+    sub: 'Shot from the floor',
+    meta: 'SHOW · SEP 2026',
+    img: 'assets/works/snowstripperz.jpg',
     link: 'https://www.instagram.com/raw.r3tro/',
-    vid: 'assets/reels/rwb.mp4'
+    vid: 'assets/reels/snowstripperz.mp4'
   },
   {
     id: 'daytona',
