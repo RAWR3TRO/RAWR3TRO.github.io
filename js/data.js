@@ -19,9 +19,9 @@ window.RR_WORKS = [
     title: 'SNOWSTRIPPERZ',
     sub: 'Shot from the floor',
     meta: 'SHOW · SEP 2026',
-    img: 'assets/works/snowstripperz.jpg',
+    img: 'assets/works/snowstripperz-a.jpg',
     link: 'https://www.instagram.com/raw.r3tro/',
-    vid: 'assets/reels/snowstripperz.mp4'
+    vid: 'assets/reels/snowstripperz-a.mp4'
   },
   {
     id: 'daytona',
